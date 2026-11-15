@@ -1,0 +1,30 @@
+# Python compiled / cache files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.pytest_cache/
+
+# Virtual Environments
+venv/
+.venv/
+env/
+
+# Data & Output generation
+outputs/figures/*.png
+outputs/figures/*.pdf
+outputs/tables/*.csv
+data/results/*.csv
+data/results/*.json
+
+# Keep placeholder .gitkeep in empty folders
+!data/scenarios/.gitkeep
+!data/results/.gitkeep
+!outputs/figures/.gitkeep
+!outputs/tables/.gitkeep
+
+# IDEs & OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

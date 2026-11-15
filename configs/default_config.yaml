@@ -1,0 +1,28 @@
+# Default Configuration Parameters
+seed: 42
+
+simulation:
+  map_width: 500.0   # meters
+  map_height: 500.0  # meters
+  num_agents: 6
+  num_tasks: 14
+
+agent_defaults:
+  velocity_range: [5.0, 15.0]       # m/s
+  energy_capacity_range: [500.0, 2000.0]
+  usage_penalty_range: [1.0, 3.0]
+
+task_defaults:
+  execution_time_range: [10.0, 60.0]  # seconds
+  priority_range: [1.0, 5.0]
+
+svca:
+  alpha1: 0.05
+  alpha2: 1.5
+  rho: 10.0
+  num_permutations_q: 50
+
+mcmc_reward:
+  preference_sensitivity_alpha: 1.5
+  num_samples_Tw: 1000
+  burn_in: 200

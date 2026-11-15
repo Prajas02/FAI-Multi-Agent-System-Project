@@ -1,0 +1,33 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "fai_mas_project"
+version = "0.1.0"
+description = "Preference-Aware Cooperative Task Allocation and Fair Reward Sharing in Heterogeneous Multi-Agent Teams"
+readme = "README.md"
+requires-python = ">=3.9"
+authors = [
+    { name = "Prajas Kulkarni", email = "prajas.kulkarni@iitgn.ac.in" },
+    { name = "Dhairya Shah", email = "dhairya.shah@iitgn.ac.in" },
+    { name = "Goral Mashru", email = "goral.mashru@iitgn.ac.in" },
+    { name = "Yash Yeole", email = "yash.yeole@iitgn.ac.in" }
+]
+dependencies = [
+    "numpy>=1.24.0",
+    "scipy>=1.10.0",
+    "pandas>=2.0.0",
+    "matplotlib>=3.7.0",
+    "seaborn>=0.12.0",
+    "networkx>=3.0",
+    "pyyaml>=6.0",
+    "tqdm>=4.65.0",
+    "pulp>=2.7.0"
+]
+
+[tool.pytest.ini_options]
+minversion = "7.0"
+addopts = "-ra -q"
+testpaths = ["tests"]
+pythonpath = ["."]
