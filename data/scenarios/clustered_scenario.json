@@ -1,0 +1,173 @@
+{
+  "map_width": 500.0,
+  "map_height": 500.0,
+  "seed": 42,
+  "agents": [
+    {
+      "agent_id": 1,
+      "x": 494.76,
+      "y": 320.0,
+      "velocity": 10.57,
+      "energy_capacity": 1526.9,
+      "current_energy": 1526.9,
+      "usage_penalty": 2.69,
+      "consumption_per_meter": 1.0,
+      "consumption_per_sec": 0.1
+    },
+    {
+      "agent_id": 2,
+      "x": 388.0,
+      "y": 114.52,
+      "velocity": 5.32,
+      "energy_capacity": 973.2,
+      "current_energy": 973.2,
+      "usage_penalty": 1.54,
+      "consumption_per_meter": 1.0,
+      "consumption_per_sec": 0.1
+    },
+    {
+      "agent_id": 3,
+      "x": 105.49,
+      "y": 471.45,
+      "velocity": 13.76,
+      "energy_capacity": 972.0,
+      "current_energy": 972.0,
+      "usage_penalty": 2.31,
+      "consumption_per_meter": 1.0,
+      "consumption_per_sec": 0.1
+    },
+    {
+      "agent_id": 4,
+      "x": 197.82,
+      "y": 457.27,
+      "velocity": 9.59,
+      "energy_capacity": 897.3,
+      "current_energy": 897.3,
+      "usage_penalty": 1.49,
+      "consumption_per_meter": 1.0,
+      "consumption_per_sec": 0.1
+    },
+    {
+      "agent_id": 5,
+      "x": 280.68,
+      "y": 131.37,
+      "velocity": 10.85,
+      "energy_capacity": 1846.7,
+      "current_energy": 1846.7,
+      "usage_penalty": 1.8,
+      "consumption_per_meter": 1.0,
+      "consumption_per_sec": 0.1
+    },
+    {
+      "agent_id": 6,
+      "x": 109.66,
+      "y": 498.77,
+      "velocity": 10.1,
+      "energy_capacity": 636.4,
+      "current_energy": 636.4,
+      "usage_penalty": 1.09,
+      "consumption_per_meter": 1.0,
+      "consumption_per_sec": 0.1
+    }
+  ],
+  "tasks": [
+    {
+      "task_id": 1,
+      "x": 247.52,
+      "y": 203.39,
+      "execution_time": 53.0,
+      "priority": 1.05
+    },
+    {
+      "task_id": 2,
+      "x": 159.77,
+      "y": 263.38,
+      "execution_time": 47.5,
+      "priority": 4.07
+    },
+    {
+      "task_id": 3,
+      "x": 384.88,
+      "y": 250.31,
+      "execution_time": 32.7,
+      "priority": 4.82
+    },
+    {
+      "task_id": 4,
+      "x": 93.27,
+      "y": 255.54,
+      "execution_time": 18.9,
+      "priority": 4.65
+    },
+    {
+      "task_id": 5,
+      "x": 80.12,
+      "y": 263.04,
+      "execution_time": 40.4,
+      "priority": 1.61
+    },
+    {
+      "task_id": 6,
+      "x": 46.03,
+      "y": 277.59,
+      "execution_time": 36.5,
+      "priority": 1.0
+    },
+    {
+      "task_id": 7,
+      "x": 332.79,
+      "y": 224.15,
+      "execution_time": 28.1,
+      "priority": 4.94
+    },
+    {
+      "task_id": 8,
+      "x": 354.19,
+      "y": 252.39,
+      "execution_time": 38.4,
+      "priority": 1.32
+    },
+    {
+      "task_id": 9,
+      "x": 82.14,
+      "y": 209.9,
+      "execution_time": 48.0,
+      "priority": 4.06
+    },
+    {
+      "task_id": 10,
+      "x": 61.32,
+      "y": 212.87,
+      "execution_time": 18.3,
+      "priority": 3.11
+    },
+    {
+      "task_id": 11,
+      "x": 72.79,
+      "y": 221.38,
+      "execution_time": 37.0,
+      "priority": 3.92
+    },
+    {
+      "task_id": 12,
+      "x": 104.07,
+      "y": 255.33,
+      "execution_time": 43.6,
+      "priority": 2.49
+    },
+    {
+      "task_id": 13,
+      "x": 68.43,
+      "y": 217.63,
+      "execution_time": 13.2,
+      "priority": 1.08
+    },
+    {
+      "task_id": 14,
+      "x": 100.75,
+      "y": 236.56,
+      "execution_time": 13.5,
+      "priority": 3.52
+    }
+  ]
+}
