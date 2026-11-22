@@ -1,4 +1,7 @@
-"""Genetic-Algorithm clustering baseline (proposal Sec. 4.3).
+"""Cost-driven GA clustering baseline ("GA-cost"): minimises the TRUE allocation cost A(U).
+
+The paper's GA (fitness V(C)) is in ga_paper.py (solver name "GA"). This one is a stronger,
+non-paper reference.
 
 Chromosome : one cluster label in [0, K) for every entity (agents first, then tasks).
 Fitness    : total A(U) after solving every cluster with the SAME sub-solver SVCA uses.
@@ -48,7 +51,7 @@ Chromosome = List[int]
 
 
 class GAClusteringAllocator(Allocator):
-    name = "GA"
+    name = "GA-cost"
 
     def __init__(self, config: Optional[GAConfig] = None):
         self.config = config or GAConfig()

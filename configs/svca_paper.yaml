@@ -1,0 +1,20 @@
+# Parameters for the paper-faithful SVCA / GA (Martin et al., 2023, Sec. 5).
+# Defaults follow the paper's case study: alpha1 = 0.1, alpha2 = 10, alpha3..alpha7 = 1,
+# theta = 0.1, xi = 0.08 (-> q_ini = 423), l_max = 10.
+seed: 42
+
+svca_paper:
+  alpha1: 0.1          # weight of average robot-task distance
+  alpha2: 10.0         # coalition-size penalty
+  alpha3: 1.0          # robot energy
+  alpha4: 1.0          # robot velocity
+  alpha5: 1.0          # robot usage penalty
+  alpha6: 1.0          # task priority
+  alpha7: 1.0          # task operation time
+  rho: null            # null = smallest bound that keeps J(S) positive; or give a number
+  rho_multiplier: 1.0  # scales the automatic rho (sensitivity studies)
+  scale: paper         # "paper": map simulator attribute ranges onto the paper's; "none": raw values
+  theta: 0.1
+  xi: 0.08
+  l_max: 10
+  task_order: lowest_abs   # "lowest_abs" (Algorithm 2 pseudo-code) | "most_demanding" (paper prose)
