@@ -86,6 +86,33 @@ python -m unittest discover tests
 
 ---
 
+## 4b. Reward Solver (`src/game_theory/`, Goral Mashru)
+
+```python
+from src.simulation.generator import ScenarioGenerator
+from src.game_theory import PreferenceAwareShapleySolver
+
+scen = ScenarioGenerator(seed=42).generate_scenario(num_agents=20, num_tasks=30)
+solver = PreferenceAwareShapleySolver.from_scenario(scen, allocation=None, alpha=1.5)
+dist = solver.solve("glauber", compute_stability=True)   # -> core.types.RewardDistribution
+# methods: "glauber" | "exact" (n<=9) | "stratified" | "permutation"
+```
+
+| File | Contents |
+| :--- | :--- |
+| `characteristic.py` | `V(S)` games: `FacilityLocationValue` (fast), `RoutingValue` (greedy routing + energy), `CallableValue` (wrap any `J(S)`, e.g. SVCA cost) |
+| `preference.py` | `PreferenceGraph`: `W`, `Gamma`, `Upsilon`, exact `mu`, generators from agents |
+| `mcmc.py` | `GlauberSampler`: heat-bath chain over orderings (Eq. 13), estimator Eq. 14, batch-means SE |
+| `sampling.py` | `stratified_shapley` (uniform/Neyman), `permutation_shapley` — alpha=0 baselines and reusable for SVCA's Eq. 12 |
+| `exact.py` | brute-force classical (n<=20) and preference-aware (n<=9) Shapley for validation |
+| `fairness.py` | `gini`, `core_stability` (max excess / violation rate) |
+| `solver.py` | `PreferenceAwareShapleySolver`, `equal_split` baseline |
+
+Demo / smoke benchmark: `python scripts/demo_reward_solver.py --agents 80 --tasks 80`.
+
+**Modelling note:** the literal `Gamma(C) = exp(sum w)` makes `mu` collapse onto one ordering for
+larger teams, so the default graph is tempered via `max_log_gamma` (set `null` for the literal form).
+
 ## 5. Branching & Git Workflow for Team Members
 
 To prevent merge conflicts, each member works on their respective feature branch:
