@@ -208,7 +208,7 @@ class TestSVCA(unittest.TestCase):
         res = SVCAAllocator(self.cfg).solve(self.sc)
         self.assertEqual(AllocationEvaluator(self.sc).validate(res.assignments), [])
         self.assertAlmostEqual(res.total_cost, env_result(self.sc, res.assignments).total_cost, places=2)
-        self.assertEqual(res.solver_name, "SVCA")
+        self.assertEqual(res.solver_name, "SVCA-ext")
         self.assertEqual(res.metadata["num_clusters"], len(res.metadata["clusters"]))
         for key in ("runtime_shapley", "runtime_clustering", "runtime_subsolve", "shapley"):
             self.assertIn(key, res.metadata)
@@ -259,7 +259,7 @@ class TestGAClustering(unittest.TestCase):
         res = GAClusteringAllocator(self.cfg).solve(self.sc)
         self.assertEqual(AllocationEvaluator(self.sc).validate(res.assignments), [])
         self.assertAlmostEqual(res.total_cost, env_result(self.sc, res.assignments).total_cost, places=2)
-        self.assertEqual(res.solver_name, "GA")
+        self.assertEqual(res.solver_name, "GA-cost")
 
     def test_every_cluster_with_tasks_has_an_agent(self):
         res = GAClusteringAllocator(self.cfg).solve(self.sc)

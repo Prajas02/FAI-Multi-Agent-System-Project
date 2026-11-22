@@ -1,4 +1,7 @@
-"""Shapley Value Clustering Algorithm (SVCA) for task allocation (proposal Sec. 4.1).
+"""EXTENDED SVCA variant ("SVCA-ext"): my own cluster construction, NOT the paper's algorithm.
+
+The paper-faithful version is in svca_paper.py (solver name "SVCA"). This variant keeps the
+Shapley-ranking idea but uses a cost-aware coalition model (coalition.py) and a refinement step.
 
 Pipeline
     1. Estimate each entity's Shapley value of the coalition cost J from q sampled
@@ -251,7 +254,7 @@ def build_clusters(model: CoalitionModel, phi: List[float], cfg: SVCAConfig) -> 
 
 # ----------------------------------------------------------------------------- allocator
 class SVCAAllocator(Allocator):
-    name = "SVCA"
+    name = "SVCA-ext"
 
     def __init__(self, config: Optional[SVCAConfig] = None):
         self.config = config or SVCAConfig()

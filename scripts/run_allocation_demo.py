@@ -1,4 +1,11 @@
-"""Run Greedy, Greedy+LS, SVCA and GA on one scenario and cross-check against Environment.
+"""Run all allocators on one scenario and cross-check each result against Environment.
+
+Solvers (names as printed):
+    Greedy, Greedy+LS   baselines (no clustering)
+    SVCA                paper-faithful SVCA (Martin et al. 2023, Algorithms 1-2), K chosen by V(C)
+    GA                  paper-faithful GA clustering (fitness V(C))
+    SVCA-ext, GA-cost   own extended / cost-driven variants (not in the paper)
+
 
 Examples
     python scripts/run_allocation_demo.py                           # R=6, T=14 default config
@@ -16,10 +23,13 @@ import sys
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from src.allocation import (  # noqa: E402
-    AllocationEvaluator,
     GAClusteringAllocator,
     GAConfig,
     GreedyAllocator,
+    PaperGAAllocator,
+    PaperGAConfig,
+    PaperSVCAAllocator,
+    PaperSVCAConfig,
     SVCAAllocator,
     SVCAConfig,
 )
@@ -38,7 +48,12 @@ def main() -> None:
     ap.add_argument("--clustered", action="store_true", help="hotspot-clustered task layout")
     ap.add_argument("--target-cluster-size", type=int, default=20, help="entities per sub-problem (sets K)")
     ap.add_argument("--q", type=int, default=None, help="Shapley permutations (default: from config)")
-    ap.add_argument("--skip-ga", action="store_true")
+    ap.add_argument("--skip-ga", action="store_true", help="skip both GA variants (the slowest solvers)")
+    ap.add_argument("--paper-config", default=os.path.join("configs", "svca_paper.yaml"),
+                    help="YAML with the svca_paper: section (alpha weights, theta, xi, ...)")
+    ap.add_argument("--alpha1", type=float, default=None, help="override the paper's alpha1 (distance weight)")
+    ap.add_argument("--rho-multiplier", type=float, default=None, help="scale the automatic rho of the paper's J")
+    ap.add_argument("--task-order", choices=["lowest_abs", "most_demanding"], default=None)
     ap.add_argument("--save", help="write results (incl. clusters and Shapley values) to this JSON file")
     args = ap.parse_args()
 
@@ -57,36 +72,55 @@ def main() -> None:
         SVCAConfig.from_yaml(CONFIG_PATH, **overrides) if os.path.exists(CONFIG_PATH) else SVCAConfig(**overrides)
     )
 
+    paper_over = {}
+    if args.task_order:
+        paper_over["task_order"] = args.task_order
+    paper_cfg = (PaperSVCAConfig.from_yaml(args.paper_config, **paper_over)
+                 if os.path.exists(args.paper_config) else PaperSVCAConfig(**paper_over))
+    if args.alpha1 is not None:
+        paper_cfg.params.alpha1 = args.alpha1
+    if args.rho_multiplier is not None:
+        paper_cfg.params.rho_multiplier = args.rho_multiplier
+
     solvers = [
         GreedyAllocator(),
         GreedyAllocator(use_local_search=True),
+        PaperSVCAAllocator(paper_cfg),
         SVCAAllocator(svca_cfg),
     ]
     if not args.skip_ga:
-        solvers.append(GAClusteringAllocator(GAConfig(target_cluster_size=args.target_cluster_size, seed=svca_cfg.seed)))
+        solvers.append(PaperGAAllocator(PaperGAConfig(params=paper_cfg.params, seed=svca_cfg.seed)))
+        solvers.append(GAClusteringAllocator(GAConfig(target_cluster_size=args.target_cluster_size,
+                                                      seed=svca_cfg.seed)))
 
-    ev = AllocationEvaluator(scenario)
     env = Environment()
     env.load_scenario(scenario)
 
     print(f"Scenario: R={R} agents, T={T} tasks (N={R + T})\n")
-    print(f"{'solver':<11}{'cost A(U)':>12}{'runtime[s]':>12}{'K':>4}{'valid':>7}{'env check':>11}")
+    print(f"{'solver':<11}{'cost A(U)':>12}{'runtime[s]':>12}{'K':>4}{'V(C)':>10}{'valid':>7}{'env check':>11}")
     results = []
     for solver in solvers:
         res = solver.solve(scenario)
         env_cost = env.execute_allocation(res.assignments)[0].total_cost
         ok = "OK" if abs(env_cost - res.total_cost) < 0.011 else f"MISMATCH ({env_cost})"
         k = res.metadata.get("num_clusters", "-")
-        print(f"{res.solver_name:<11}{res.total_cost:>12.2f}{res.runtime_seconds:>12.3f}{k!s:>4}"
+        v = f"{res.metadata['V']:.0f}" if "V" in res.metadata else "-"
+        print(f"{res.solver_name:<11}{res.total_cost:>12.2f}{res.runtime_seconds:>12.3f}{k!s:>4}{v:>10}"
               f"{str(res.metadata['valid']):>7}{ok:>11}")
         results.append(res)
 
     svca = next(r for r in results if r.solver_name == "SVCA")
-    print("\nSVCA clusters:")
-    for i, c in enumerate(svca.metadata["clusters"]):
-        print(f"  cluster {i}: agents={c['agents']}  tasks={c['tasks']}")
-    print(f"  time split: shapley={svca.metadata['runtime_shapley']:.3f}s  "
-          f"clustering={svca.metadata['runtime_clustering']:.3f}s  subsolve={svca.metadata['runtime_subsolve']:.3f}s")
+    m = svca.metadata
+    print(f"\nSVCA (paper): q_ini={m['q_initial']}, q used={m['q_used']}, rho={m['rho']:.1f}, "
+          f"t_clu={m['t_clu']:.3f}s, t_all={m['t_all']:.3f}s")
+    print("  V(C) by number of clusters:",
+          ", ".join(f"{c['num_clusters']}:{c['V']:.0f}" for c in m["v_curve"]))
+    if m["frac_tasks_positive_phi"] > 0.05:
+        print(f"  WARNING: {m['frac_tasks_positive_phi']:.0%} of tasks have positive Shapley value; the paper's "
+              "Algorithm 2 assumes tasks are negative (try a smaller --alpha1).")
+    print("  clusters:")
+    for i, c in enumerate(m["clusters"]):
+        print(f"    {i}: robots={c['agents']}  tasks={c['tasks']}")
 
     if args.save:
         os.makedirs(os.path.dirname(args.save) or ".", exist_ok=True)
