@@ -26,3 +26,6 @@ mcmc_reward:
   preference_sensitivity_alpha: 1.5
   num_samples_Tw: 1000
   burn_in: 200
+  thin: null                  # Glauber steps between samples (null -> N)
+  samples_per_stratum: 10     # stratified Monte Carlo baseline
+  max_log_gamma: 3.0          # tempering cap on log Gamma(N); null = literal exp(sum w) (degenerate for large N)
