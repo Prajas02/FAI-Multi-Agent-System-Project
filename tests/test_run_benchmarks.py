@@ -314,7 +314,7 @@ class TestDryRunAndAvailability(RunnerTestCase):
         self.assertIn("400 runs", out)
         self.assertIn("1593276916", out)
         self.assertNotIn("UNAVAILABLE", out)
-        self.assertIn("MILP is pending its owner's implementation", out)
+        self.assertIn("MILP is registered but not in benchmark.algorithms", out)
         self.assertIn("reward stage: enabled: PreferenceAwareShapleySolver", out)
         self.assertFalse(self.results.exists())                        # nothing written
         self.assertFalse(self.summary.exists())
@@ -813,8 +813,8 @@ class TestSubprocessBackend(RunnerTestCase):
 # ---------------------------------------------------------------------------
 
 class TestBoundaries(unittest.TestCase):
-    def test_real_adapter_registry_is_modular_and_milp_remains_unimplemented(self):
-        self.assertEqual(set(rb.ADAPTER_REGISTRY), {"Greedy", "GA", "SVCA", "GA_Paper", "SVCA_Paper"})
+    def test_real_adapter_registry_is_modular_and_includes_milp(self):
+        self.assertEqual(set(rb.ADAPTER_REGISTRY), {"Greedy", "GA", "SVCA", "GA_Paper", "SVCA_Paper", "MILP"})
         self.assertTrue(all(value.startswith("src.analytics.allocation_adapters:")
                             for value in rb.ADAPTER_REGISTRY.values()))
         source = SCRIPT.read_text(encoding="utf-8")

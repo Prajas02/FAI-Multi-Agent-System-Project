@@ -1,5 +1,0 @@
-*Total pipeline runtime in seconds: mean ± sample std (n = runs with both stages completed)*
-
-| N | Robots | Tasks | GA | Greedy | SVCA | GA_Paper | SVCA_Paper |
-|---:|---:|---:|:---|:---|:---|:---|:---|
-| 10 | 5 | 5 | 1.95 (n=1) | 1.90 (n=1) | 1.88 (n=1) | 1.99 (n=1) | 1.84 (n=1) |

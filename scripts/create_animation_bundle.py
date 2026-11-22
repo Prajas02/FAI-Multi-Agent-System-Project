@@ -17,6 +17,12 @@ from src.analytics import seeding
 from src.simulation.generator import ScenarioData
 from src.visualization.animation import write_bundle
 
+import yaml
+
+# Score bundles with the benchmark's configured energy penalty so saved metrics match the CSVs.
+_PENALTY = yaml.safe_load((REPO_ROOT / "configs" / "experiments_config.yaml").read_text(encoding="utf-8"))[
+    "evaluation"]["energy_penalty"]
+
 ADAPTERS = {
     "Greedy": allocation_adapters.greedy_adapter,
     "GA": allocation_adapters.ga_adapter,
@@ -43,7 +49,7 @@ def main(argv=None):
         payload = ADAPTERS[name](scenario, seeding.algorithm_seed(args.seed, name), 300.0)
         assignments = payload["assignments"]
         allocations[name] = assignments
-        evaluation = evaluate_allocation(scenario, assignments, {"strategy": "quadratic", "lambda_E": 1.0})
+        evaluation = evaluate_allocation(scenario, assignments, _PENALTY)
         metrics[name] = {"allocation_cost": evaluation.allocation_cost, "energy_feasible": evaluation.energy_feasible}
     write_bundle(Path(args.output), scenario, allocations, metrics)
     print(f"saved {len(allocations)} exact allocation(s) to {args.output}")

@@ -1,5 +1,0 @@
-*Gini index of robot rewards: mean ± sample std (n = runs with valid reward records)*
-
-| N | Robots | Tasks | GA | Greedy | SVCA | GA_Paper | SVCA_Paper |
-|---:|---:|---:|:---|:---|:---|:---|:---|
-| 10 | 5 | 5 | 0.000 (n=1) | 0.000 (n=1) | 0.000 (n=1) | 0.000 (n=1) | 0.000 (n=1) |

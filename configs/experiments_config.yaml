@@ -19,7 +19,7 @@ experiment:
   id: benchmark_initial
   description: >-
     Initial benchmark of Greedy, baseline and paper GA, and baseline and paper SVCA on identical
-    scenarios with 8 initial robot/task configurations. MILP is pending its owner.
+    scenarios with 8 initial robot/task configurations. MILP is registered (exact, slow) but not active by default.
     configurations.
   # Fixed, configurable base seed. All other seeds are derived from it
   # (see "seeds" below).
@@ -42,8 +42,8 @@ environment:
 # -----------------------------------------------------------------------------
 benchmark:
   repetitions_per_configuration: 10
-  # Active implementations only. MILP remains reserved in time_limits below,
-  # but is excluded from execution until its owner supplies the implementation.
+  # Active algorithms. MILP is implemented and registered; add "- MILP" below to
+  # include the exact baseline (practical only for the small configurations).
   algorithms:
     - Greedy
     - GA
@@ -155,7 +155,7 @@ time_limits:
   unit: seconds
   reward_stage_seconds: 300
   per_algorithm:
-    # Reserved for the MILP owner; not active in benchmark.algorithms yet.
+    # MILP is used only when listed in benchmark.algorithms.
     MILP: 300
     GA: 300
     Greedy: 300
@@ -168,15 +168,15 @@ time_limits:
 # -----------------------------------------------------------------------------
 evaluation:
   energy_penalty:
-    # ENGINEERING ASSUMPTION, not a formula from the project proposal. The
-    # proposal leaves phi(U) undefined. The strategy and the coefficient are
-    # PROVISIONAL and pending team confirmation (design document, section 2.2
-    # and dependency D4).
-    status: provisional_pending_team_confirmation
+    # Team decision (2026-11-22): score with the SAME penalty the allocators optimise
+    # (AllocationEvaluator / Environment: 1000 x energy shortfall), so the reported
+    # A(U) equals each solver's own objective. The proposal leaves phi(U) undefined.
+    status: confirmed_matches_allocator_objective
     # Options: quadratic | linear | zero
-    #   quadratic: phi(U) = lambda_E * sum_r max(0, -E_r(U))^2
-    strategy: quadratic
-    lambda_E: 1.0   # provisional default, must be confirmed
+    #   linear:    phi(U) = lambda_E * sum_r deficit_r
+    #   quadratic: phi(U) = lambda_E * sum_r deficit_r^2   (earlier provisional choice)
+    strategy: linear
+    lambda_E: 1000.0   # = AllocationEvaluator.energy_penalty_factor
   # Energy feasibility (E_r(U) >= 0 for every robot) is always reported as its
   # own metric, separate from the cost.
   energy_feasibility:
@@ -195,6 +195,10 @@ reward:
   enabled: true
   method: glauber
   value_type: facility
+  # clusters: one reward game per Stage-1 cluster (SVCA / GA), merged per robot, so Gini
+  #           depends on the allocation; Greedy / MILP have no clusters and play one global game.
+  # global:   one scenario-wide game, identical for every allocator.
+  decomposition: clusters
   preference_sensitivity_alpha: 1.5
   num_samples_Tw: 1000
   burn_in: 200

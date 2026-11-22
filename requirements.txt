@@ -14,7 +14,7 @@ tqdm>=4.65.0
 pulp>=2.7.0
 
 # Optional runtime for the interactive 2D allocation playback.
-pygame>=2.5.0
+pygame-ce>=2.5.0   # drop-in pygame build with wheels for Python 3.13+
 
 # Testing
 pytest>=7.3.0

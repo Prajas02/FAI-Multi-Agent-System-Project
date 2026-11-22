@@ -95,7 +95,8 @@ class TestPaperAllocationAdapters(unittest.TestCase):
         self.assertEqual(algorithms, ["Greedy", "GA", "SVCA", "GA_Paper", "SVCA_Paper"])
         self.assertTrue(config["benchmark"]["same_scenario_for_all_algorithms"])
         self.assertEqual(config["benchmark"]["repetitions_per_configuration"], 10)
-        self.assertEqual(set(runner.ADAPTER_REGISTRY) - set(algorithms), set())
+        # MILP is registered but opt-in (exact and slow), so it is the only adapter not active by default.
+        self.assertEqual(set(runner.ADAPTER_REGISTRY) - set(algorithms), {"MILP"})
         self.assertIn("GA", algorithms)
         self.assertIn("SVCA", algorithms)
 

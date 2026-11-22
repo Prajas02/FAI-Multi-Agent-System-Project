@@ -15,8 +15,8 @@ Everything below the orchestration (seeds, validation, evaluation, execution
 backends, logging, aggregation) is reused from src/analytics/.
 
 ADAPTERS (analytics-owned wrappers). Greedy, GA, SVCA and the paper variants are registered through
-``src.analytics.allocation_adapters``. MILP remains unavailable until its owner
-provides an implementation. An algorithm without an adapter is reported as
+``src.analytics.allocation_adapters``. MILP is registered too but is only run when listed
+in benchmark.algorithms, because it is exact and slow. An algorithm without an adapter is reported as
 unavailable and is never given a fabricated result. Adapters are registered as
 ``"module.path:attribute"`` references (in ``ADAPTER_REGISTRY`` or with
 ``--adapter ALGORITHM=module.path:attribute``) and follow OUR analytics-side contract:
@@ -97,14 +97,15 @@ from src.simulation.kinematics import BatteryDecayModel  # noqa: E402
 
 DEFAULT_CONFIG = REPO_ROOT / "configs" / "experiments_config.yaml"
 
-# Algorithm id -> analytics-owned adapter reference. Keep this table modular so
-# the MILP adapter can be registered when its owner delivers the implementation.
+# Algorithm id -> analytics-owned adapter reference. MILP is registered but not in
+# benchmark.algorithms by default because it is exact and slow beyond small sizes.
 ADAPTER_REGISTRY: Dict[str, str] = {
     "Greedy": "src.analytics.allocation_adapters:greedy_adapter",
     "GA": "src.analytics.allocation_adapters:ga_adapter",
     "SVCA": "src.analytics.allocation_adapters:svca_adapter",
     "GA_Paper": "src.analytics.allocation_adapters:ga_paper_adapter",
     "SVCA_Paper": "src.analytics.allocation_adapters:svca_paper_adapter",
+    "MILP": "src.analytics.allocation_adapters:milp_adapter",
 }
 REWARD_ADAPTER_REGISTRY: Dict[str, str] = {
     "default": "src.analytics.reward_adapters:preference_aware_reward_adapter",
@@ -141,6 +142,9 @@ class RunSpec(NamedTuple):
     algorithm: str
     algorithm_seed: int
     time_limit_seconds: float
+    # Derived with the same --config seed templates as the other seeds. None keeps the
+    # old behaviour (default config) for callers that build RunSpec by hand.
+    reward_seed: Optional[int] = None
 
 
 # ---------------------------------------------------------------------------
@@ -258,6 +262,8 @@ def validate_config(
         problems.append("reward.method must be glauber, exact, stratified or permutation.")
     if reward.get("value_type") not in ("facility", "routing"):
         problems.append("reward.value_type must be facility or routing.")
+    if reward.get("decomposition", "clusters") not in ("clusters", "global"):
+        problems.append("reward.decomposition must be clusters or global.")
     alpha = reward.get("preference_sensitivity_alpha")
     if not _is_number(alpha) or not math.isfinite(alpha) or alpha < 0:
         problems.append("reward.preference_sensitivity_alpha must be a finite number >= 0.")
@@ -335,6 +341,8 @@ def build_run_plan(
                     algorithm,
                     seeding.algorithm_seed(scenario_seed, algorithm, config_path=config_path),
                     float(config["time_limits"]["per_algorithm"][algorithm]),
+                    seeding.reward_seed(scenario_seed, config["seeds"]["reward_stage_label"],
+                                        config_path=config_path),
                 ))
     return plan
 
@@ -380,7 +388,8 @@ def _reward_stage_status(config: Optional[Mapping[str, Any]] = None, available: 
         return "unavailable: reward solver adapter could not be loaded; no rewards were fabricated"
     reward = (config or {}).get("reward", {})
     return ("enabled: PreferenceAwareShapleySolver "
-            f"(method={reward.get('method', 'glauber')}, value_type={reward.get('value_type', 'facility')}); "
+            f"(method={reward.get('method', 'glauber')}, value_type={reward.get('value_type', 'facility')}, "
+            f"decomposition={reward.get('decomposition', 'clusters')}); "
             "coalition stability remains disabled")
 
 
@@ -399,6 +408,24 @@ def _extract_assignments(outcome: StageOutcome, master: ScenarioData) -> Validat
     if not isinstance(payload, Mapping) or "assignments" not in payload:
         return ValidationResult(False, ["adapter output must be a mapping with an 'assignments' entry"], None)
     return validate_assignments(payload["assignments"], master)
+
+
+def _extract_clusters(outcome: StageOutcome, master: ScenarioData) -> Optional[List[Dict[str, List[int]]]]:
+    """Stage-1 coalitions from the adapter output, or None if absent or not about this scenario."""
+    payload = outcome.payload
+    clusters = payload.get("clusters") if isinstance(payload, Mapping) else None
+    if not isinstance(clusters, list) or not clusters:
+        return None
+    agents = {a.agent_id for a in master.agents}
+    tasks = {t.task_id for t in master.tasks}
+    try:
+        cleaned = [{"agents": [int(a) for a in c["agents"]], "tasks": [int(t) for t in c["tasks"]]}
+                   for c in clusters]
+    except (TypeError, KeyError, ValueError):
+        return None
+    if any(not set(c["agents"]) <= agents or not set(c["tasks"]) <= tasks for c in cleaned):
+        return None
+    return cleaned
 
 
 def _execute_run_details(
@@ -433,13 +460,13 @@ def _execute_run_details(
             extract_robot_reward_pairs,
             robot_reward_records,
         )
-        reward_seed = seeding.reward_seed(
+        reward_seed = spec.reward_seed if spec.reward_seed is not None else seeding.reward_seed(
             spec.scenario_seed, config["seeds"]["reward_stage_label"]
         )
         reward_limit = float(config["time_limits"]["reward_stage_seconds"])
         stage_input = RewardStageInput(
             scenario=copy.deepcopy(master), assignments=validation.normalized,
-            options=dict(config["reward"]),
+            options=dict(config["reward"]), clusters=_extract_clusters(allocation_outcome, master),
         )
         reward_outcome = backend.run(reward_adapter, stage_input, reward_seed, reward_limit)
 
@@ -629,7 +656,9 @@ def _describe_plan(config: Mapping[str, Any], plan: Sequence[RunSpec]) -> List[s
         f"base seed {config['experiment']['base_seed']}",
         "time limits (provisional, seconds): "
         + ", ".join(f"{a}={config['time_limits']['per_algorithm'][a]}" for a in config["benchmark"]["algorithms"]),
-        "energy penalty: {strategy} (lambda_E={lambda_E}), provisional".format(**config["evaluation"]["energy_penalty"]),
+        "energy penalty: {strategy} (lambda_E={lambda_E}), {state}".format(
+            state="confirmed" if str(config["evaluation"]["energy_penalty"].get("status", "")).startswith("confirmed")
+            else "provisional", **config["evaluation"]["energy_penalty"]),
         "configuration  robots tasks   N  scenario seeds",
     ]
     by_config: Dict[str, List[RunSpec]] = {}
@@ -764,9 +793,9 @@ def run_experiment(
         print(f"UNAVAILABLE {algorithm}: {reason}")
     if unavailable:
         pending = ", ".join(unavailable)
-        print(f"note: unavailable algorithms ({pending}) need registered implementations; MILP is pending its owner.")
+        print(f"note: unavailable algorithms ({pending}) need registered implementations.")
     elif "MILP" not in algorithms:
-        print("note: MILP is pending its owner's implementation and is excluded from the active benchmark plan.")
+        print("note: MILP is registered but not in benchmark.algorithms; add it there to include the exact baseline.")
     print("reward stage: " + reward_status)
 
     completed = preflight(config, experiment_id, results_dir, options["resume"], options["dry_run"])

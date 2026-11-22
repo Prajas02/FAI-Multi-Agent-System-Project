@@ -22,6 +22,15 @@ from src.simulation.generator import ScenarioGenerator
 ROOT = Path(__file__).resolve().parents[1]
 CONFIG = ROOT / "configs" / "experiments_config.yaml"
 rb = importlib.import_module("scripts.run_benchmarks")
+REAL_RESULTS = ROOT / "data" / "results" / "raw" / "benchmark_results.csv"
+
+
+def _snapshot(path: Path):
+    """(exists, size, mtime) of a file: unchanged snapshot = the file was not written."""
+    if not path.exists():
+        return (False, None, None)
+    stat = path.stat()
+    return (True, stat.st_size, stat.st_mtime_ns)
 
 
 class TestRealAllocationAdapters(unittest.TestCase):
@@ -63,6 +72,7 @@ class TestRealAllocationAdapters(unittest.TestCase):
         config["configurations"] = [{"id": "C1", "num_robots": 5, "num_tasks": 5}]
         config_path = self.tmp / "mini.yaml"
         config_path.write_text(yaml.safe_dump(config, sort_keys=False), encoding="utf-8")
+        real_before = _snapshot(REAL_RESULTS)
         seen, seen_scenarios = [], []
         originals = {name: getattr(adapters, name) for name in
                      ("greedy_adapter", "ga_adapter", "svca_adapter")}
@@ -99,7 +109,8 @@ class TestRealAllocationAdapters(unittest.TestCase):
             expected = rb.evaluate_allocation(seen_scenarios[index], seen[index][3], config["evaluation"]["energy_penalty"])
             self.assertAlmostEqual(row["allocation_cost"], expected.allocation_cost, places=9)
             self.assertEqual(bool(row["energy_feasible"]), expected.energy_feasible)
-        self.assertFalse((ROOT / "data" / "results" / "raw" / "benchmark_results.csv").exists())
+        # The run must not touch the project's real results (which may exist after a real benchmark).
+        self.assertEqual(_snapshot(REAL_RESULTS), real_before)
 
     def test_solver_exception_becomes_a_failed_logger_record(self):
         scenario = ScenarioGenerator(seed=104).generate_scenario(3, 4)

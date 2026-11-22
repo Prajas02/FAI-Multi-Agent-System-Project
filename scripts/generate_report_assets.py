@@ -21,7 +21,7 @@ Rules:
 - Gini is taken from valid robot reward records only (recomputed with the existing
   metric); with no valid reward measurement the fairness figure is not generated.
 - Coalition stability is never plotted: it is pending a formal definition.
-- The quadratic energy penalty with lambda_E = 1.0 is PROVISIONAL and is labelled
+- The energy penalty is labelled PROVISIONAL unless the experiment config marks it confirmed, and is labelled
   as such wherever its effect (allocation cost) is shown.
 - The assets describe measured values only. They make no ranking or "better algorithm" claim.
 
@@ -177,9 +177,17 @@ def _penalty_note(penalty: Optional[Dict[str, Any]]) -> str:
     if not penalty:
         return ("Allocation cost includes an energy penalty whose settings are unknown here (no metadata file); "
                 "the penalty is a PROVISIONAL engineering assumption.")
+    if _penalty_confirmed(penalty):
+        return (f"Allocation cost includes the energy penalty ({penalty.get('strategy')}, "
+                f"lambda_E={penalty.get('lambda_E')}), the same objective A(U) the allocators optimise.")
     return (f"Allocation cost includes the PROVISIONAL energy penalty ({penalty.get('strategy')}, "
             f"lambda_E={penalty.get('lambda_E')}): an unconfirmed engineering assumption, not a formally "
             "established part of the method.")
+
+
+def _penalty_confirmed(penalty: Optional[Dict[str, Any]]) -> bool:
+    """True when the experiment's config marks the penalty as agreed (status starts with 'confirmed')."""
+    return bool(penalty) and str(penalty.get("status", "")).startswith("confirmed")
 
 
 def _unavailable_reason(key: str, status: plots.MetricStatus, frame: pd.DataFrame) -> str:
@@ -443,7 +451,8 @@ def generate_assets(
                            plots.problem_sizes(summary)[["total_entities", "num_robots", "num_tasks"]].values],
         "algorithms": plots.ordered_algorithms(summary),
         "runs_per_algorithm": per_algorithm,
-        "energy_penalty": ({**penalty, "status": "provisional: engineering assumption pending team confirmation"}
+        "energy_penalty": (dict(penalty) if _penalty_confirmed(penalty) else
+                           {**penalty, "status": "provisional: engineering assumption pending team confirmation"}
                            if penalty else {"status": "unknown (no metadata file); provisional"}),
         "metrics": metrics_report,
         "visualizations": extra_status,

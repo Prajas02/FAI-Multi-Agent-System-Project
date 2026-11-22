@@ -1,9 +1,0 @@
-*Valid per-run robot-reward Gini statistics*
-
-| Algorithm | Robots | Tasks | N | Count | Median Gini | Q1 | Q3 | Minimum | Maximum |
-|---:|---:|---:|:---|:---|:---|:---|:---|:---|:---|
-| GA | 5 | 5 | 10 | 1 | 0.0 | 0.0 | 0.0 | 0.0 | 0.0 |
-| GA_Paper | 5 | 5 | 10 | 1 | 0.0 | 0.0 | 0.0 | 0.0 | 0.0 |
-| Greedy | 5 | 5 | 10 | 1 | 0.0 | 0.0 | 0.0 | 0.0 | 0.0 |
-| SVCA | 5 | 5 | 10 | 1 | 0.0 | 0.0 | 0.0 | 0.0 | 0.0 |
-| SVCA_Paper | 5 | 5 | 10 | 1 | 0.0 | 0.0 | 0.0 | 0.0 | 0.0 |

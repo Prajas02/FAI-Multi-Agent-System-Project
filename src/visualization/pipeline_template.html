@@ -1,0 +1,618 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MAS Pipeline Viewer</title>
+<style>
+:root {
+  --bg: #f6f7f9; --card: #ffffff; --ink: #1b1f24; --muted: #5f6b7a; --line: #dfe3e8;
+  --grid: #eef0f3; --accent: #2a63d6; --accent-soft: #e6eefc; --good: #1a8f5c; --bad: #c8412b;
+  --task: #8a94a3; --map: #fbfcfd; --on-accent: #ffffff;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #121418; --card: #1b1e24; --ink: #e8eaee; --muted: #9aa4b2; --line: #2e333b;
+    --grid: #23272e; --accent: #6c9bff; --accent-soft: #23304a; --good: #43c08a; --bad: #ff7a63;
+    --task: #7d8796; --map: #171a1f; --on-accent: #0d1220;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #121418; --card: #1b1e24; --ink: #e8eaee; --muted: #9aa4b2; --line: #2e333b;
+  --grid: #23272e; --accent: #6c9bff; --accent-soft: #23304a; --good: #43c08a; --bad: #ff7a63;
+  --task: #7d8796; --map: #171a1f; --on-accent: #0d1220;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink);
+  font: 14px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+header { padding: 18px 20px 6px; max-width: 1400px; margin: 0 auto; }
+h1 { font-size: 20px; margin: 0 0 2px; }
+.sub { color: var(--muted); font-size: 13px; }
+.bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 12px; }
+.bar .lbl { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .04em; margin-right: 4px; }
+button.pill { border: 1px solid var(--line); background: var(--card); color: var(--ink); border-radius: 999px;
+  padding: 5px 12px; font: inherit; cursor: pointer; }
+button.pill.on { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+nav.steps { display: flex; gap: 4px; flex-wrap: wrap; border-bottom: 1px solid var(--line); margin-top: 14px; }
+nav.steps button { border: 0; background: none; color: var(--muted); font: inherit; padding: 9px 12px; cursor: pointer;
+  border-bottom: 2px solid transparent; margin-bottom: -1px; }
+nav.steps button.on { color: var(--ink); border-bottom-color: var(--accent); font-weight: 600; }
+nav.steps .n { display: inline-block; width: 18px; height: 18px; border-radius: 50%; background: var(--grid);
+  font-size: 11px; line-height: 18px; text-align: center; margin-right: 6px; }
+nav.steps button.on .n { background: var(--accent); color: #fff; }
+main { max-width: 1400px; margin: 0 auto; padding: 14px 20px 30px; display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 16px; }
+@media (max-width: 900px) { main { grid-template-columns: 1fr; padding: 12px 16px; } header { padding: 14px 16px 4px; } }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 14px; min-width: 0; }
+.card h2 { font-size: 15px; margin: 0 0 4px; }
+.card h3 { font-size: 13px; margin: 14px 0 6px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: .04em; }
+.desc { color: var(--muted); font-size: 13px; margin: 0 0 8px; }
+#map { width: 100%; height: auto; display: block; background: var(--map); border-radius: 8px; border: 1px solid var(--line); }
+.controls { display: flex; gap: 8px; align-items: center; margin-top: 10px; flex-wrap: wrap; }
+.controls input[type=range] { flex: 1; min-width: 140px; accent-color: var(--accent); }
+.controls select, .controls button { font: inherit; background: var(--card); color: var(--ink);
+  border: 1px solid var(--line); border-radius: 6px; padding: 4px 10px; cursor: pointer; }
+.mono { font-variant-numeric: tabular-nums; }
+.kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 8px; margin: 8px 0; }
+.kpi { border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; }
+.kpi .k { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .04em; }
+.kpi .v { font-size: 18px; font-weight: 600; font-variant-numeric: tabular-nums; }
+table { border-collapse: collapse; width: 100%; font-size: 13px; }
+th, td { text-align: right; padding: 5px 6px; border-bottom: 1px solid var(--line); font-variant-numeric: tabular-nums; white-space: nowrap; }
+th:first-child, td:first-child { text-align: left; }
+th { color: var(--muted); font-weight: 600; font-size: 12px; }
+tr.sel td { background: var(--accent-soft); }
+.scroll { overflow-x: auto; }
+.legend { display: flex; flex-wrap: wrap; gap: 10px; font-size: 12px; color: var(--muted); margin-top: 8px; }
+.legend span { display: inline-flex; align-items: center; gap: 5px; }
+.sw { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
+.note { border-left: 3px solid var(--accent); background: var(--accent-soft); padding: 8px 10px; border-radius: 4px; font-size: 13px; margin: 10px 0; }
+.ebar { height: 6px; background: var(--grid); border-radius: 3px; overflow: hidden; min-width: 60px; }
+.ebar i { display: block; height: 100%; }
+#tip { position: fixed; pointer-events: none; background: var(--card); color: var(--ink); border: 1px solid var(--line);
+  border-radius: 6px; padding: 6px 8px; font-size: 12px; box-shadow: 0 4px 14px rgba(0,0,0,.15); display: none; z-index: 10; max-width: 260px; }
+svg text { fill: var(--ink); font-family: inherit; }
+.axis text { fill: var(--muted); font-size: 10px; }
+.axis line, .axis path { stroke: var(--line); }
+.chart { width: 100%; height: auto; display: block; }
+.themebtn { float: right; }
+</style>
+</head>
+<body>
+<header>
+  <button class="pill themebtn" id="theme" title="Toggle light/dark">Theme</button>
+  <h1>Multi-Agent Pipeline Viewer</h1>
+  <div class="sub" id="subtitle"></div>
+  <div class="bar" id="algos"><span class="lbl">Allocation algorithm</span></div>
+  <nav class="steps" id="steps"></nav>
+</header>
+<main>
+  <section class="card">
+    <svg id="map" role="img" aria-label="2D map of robots and tasks"></svg>
+    <div class="controls" id="playback">
+      <button id="play">Play</button>
+      <button id="restart">Restart</button>
+      <select id="speed" title="Simulated seconds per real second">
+        <option value="10">10x</option><option value="25" selected>25x</option>
+        <option value="60">60x</option><option value="150">150x</option>
+      </select>
+      <input type="range" id="time" min="0" max="100" step="0.1" value="0">
+      <span class="mono" id="clock">t = 0.0 s</span>
+    </div>
+    <div class="legend" id="maplegend"></div>
+  </section>
+  <section class="card" id="panel"></section>
+</main>
+<div id="tip"></div>
+<script>
+const DATA = /*__PIPELINE_DATA__*/null;
+const PALETTE = ["#2a78d6","#eb6834","#1baf7a","#c99200","#7b5ce6","#e0609a","#14a3b8","#8c6d46","#5d8a1f","#c43d3d"];
+const SVGNS = "http://www.w3.org/2000/svg";
+const S = DATA.scenario, R = DATA.reward;
+const state = { algo: 0, step: 0, t: 0, playing: false, speed: 25, alphaIdx: 0, hover: null, tcRule: 2, tcMove: null, tcRoutes: false };
+const TC = DATA.team_choice;
+state.alphaIdx = Math.max(0, R.alphas.indexOf(R.alpha_default));
+
+const STEPS = [
+  ["Scenario", "The world before any decision: heterogeneous robots and the tasks they must serve."],
+  ["Clustering", "Stage 1a. The large problem is split into small coalitions of robots and tasks."],
+  ["Execution", "Stage 1b. Each robot executes its ordered route. Speed drops as the battery drains."],
+  ["Reward sharing", "Stage 2. The team's value V(N) is split with preference-aware Shapley values (Glauber MCMC)."],
+  ["Team choice", "The robots react to the Stage-1 teams. Under a reward rule, each robot compares its share in its own team with what it would get by joining another team (or idling) and moves if that pays more. Repeats until no robot wants to move (a Nash-stable partition)."],
+  ["Compare", "All allocation algorithms on this scenario, scored by the same evaluator A(U)."],
+];
+
+// ---------------------------------------------------------------- helpers
+const $ = id => document.getElementById(id);
+function el(tag, attrs, parent, text) {
+  const e = document.createElementNS(SVGNS, tag);
+  for (const k in attrs || {}) e.setAttribute(k, attrs[k]);
+  if (text !== undefined) e.textContent = text;
+  if (parent) parent.appendChild(e);
+  return e;
+}
+function h(tag, attrs, html) { const e = document.createElement(tag); Object.assign(e, attrs || {}); if (html !== undefined) e.innerHTML = html; return e; }
+const fmt = (x, d = 1) => (x === null || x === undefined) ? "n/a" : Number(x).toLocaleString(undefined, { minimumFractionDigits: d, maximumFractionDigits: d });
+const robotColor = id => PALETTE[S.agents.findIndex(a => a.id === id) % PALETTE.length];
+const css = name => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+const A = () => DATA.algorithms[state.algo];
+function tip(evt, html) { const t = $("tip"); if (!html) { t.style.display = "none"; return; }
+  t.innerHTML = html; t.style.display = "block";
+  const x = Math.min(evt.clientX + 14, window.innerWidth - t.offsetWidth - 8); t.style.left = x + "px"; t.style.top = (evt.clientY + 14) + "px"; }
+function hoverable(node, html) { node.addEventListener("mousemove", e => tip(e, typeof html === "function" ? html() : html));
+  node.addEventListener("mouseleave", e => tip(e, null)); node.style.cursor = "default"; }
+
+// ---------------------------------------------------------------- map geometry
+const PAD = 26, VW = 620, VH = Math.round(VW * S.height / S.width);
+const sx = x => PAD + x / S.width * (VW - 2 * PAD);
+const sy = y => VH - PAD - y / S.height * (VH - 2 * PAD);
+const agentById = Object.fromEntries(S.agents.map(a => [a.id, a]));
+const taskById = Object.fromEntries(S.tasks.map(t => [t.id, t]));
+const maxPrio = Math.max(...S.tasks.map(t => t.priority)), maxV = Math.max(...S.agents.map(a => a.v));
+
+function ownerMap(algo) { const m = {}; for (const [a, r] of Object.entries(algo.routes)) for (const t of r) m[t] = +a; return m; }
+function clusterOf(algo) { const m = {}; (algo.clusters || []).forEach((c, i) => { c.agents.forEach(a => m["R" + a] = i); c.tasks.forEach(t => m["T" + t] = i); }); return m; }
+
+function hull(points) {
+  if (points.length < 3) return points;
+  const p = points.slice().sort((a, b) => a[0] - b[0] || a[1] - b[1]);
+  const cross = (o, a, b) => (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0]);
+  const lo = [], up = [];
+  for (const q of p) { while (lo.length >= 2 && cross(lo[lo.length - 2], lo[lo.length - 1], q) <= 0) lo.pop(); lo.push(q); }
+  for (const q of p.slice().reverse()) { while (up.length >= 2 && cross(up[up.length - 2], up[up.length - 1], q) <= 0) up.pop(); up.push(q); }
+  return lo.slice(0, -1).concat(up.slice(0, -1));
+}
+
+// Robot position / status at simulated time t for the current plan.
+function robotAt(algo, aid, t) {
+  const legs = algo.timeline[aid] || [], a = agentById[aid];
+  let e0 = a.energy;
+  for (let i = 0; i < legs.length; i++) {
+    const L = legs[i];
+    if (t < L.tf) {
+      const frac = Math.max(0, (t - L.t0) / Math.max(L.tf - L.t0, 1e-9));
+      const energy = e0 + (L.energy - e0) * frac;
+      if (t < L.ta) { const f = (t - L.t0) / Math.max(L.ta - L.t0, 1e-9);
+        return { x: L.x0 + f * (L.x1 - L.x0), y: L.y0 + f * (L.y1 - L.y0), status: "moving to T" + L.task, energy, done: i, v: L.v, short: L.short }; }
+      return { x: L.x1, y: L.y1, status: "working on T" + L.task, energy, done: i, v: 0, short: L.short };
+    }
+    e0 = L.energy;
+  }
+  const last = legs[legs.length - 1];
+  return { x: last ? last.x1 : a.x, y: last ? last.y1 : a.y, status: legs.length ? "finished" : "idle (no tasks)", energy: e0, done: legs.length, v: 0 };
+}
+
+// ---------------------------------------------------------------- map drawing
+function drawMap() {
+  const svg = $("map"); svg.innerHTML = ""; svg.setAttribute("viewBox", `0 0 ${VW} ${VH}`);
+  const algo = A(), step = state.step, owner = ownerMap(algo), clus = clusterOf(algo);
+  const gridC = css("--grid"), lineC = css("--line"), taskC = css("--task");
+  // grid
+  for (let i = 0; i <= 10; i++) {
+    el("line", { x1: sx(S.width * i / 10), x2: sx(S.width * i / 10), y1: sy(0), y2: sy(S.height), stroke: gridC }, svg);
+    el("line", { y1: sy(S.height * i / 10), y2: sy(S.height * i / 10), x1: sx(0), x2: sx(S.width), stroke: gridC }, svg);
+  }
+  el("rect", { x: sx(0), y: sy(S.height), width: sx(S.width) - sx(0), height: sy(0) - sy(S.height), fill: "none", stroke: lineC }, svg);
+  el("text", { x: sx(S.width), y: VH - 8, "text-anchor": "end", class: "axis", "font-size": 10 }, svg, `${S.width} m x ${S.height} m`);
+
+  if (step === 4) { drawTeamChoice(svg); drawLegend(); return; }
+
+  const colorEntity = (label, fallback) => {
+    if (step === 1 && algo.clusters) return PALETTE[(clus[label] ?? 0) % PALETTE.length];
+    return fallback;
+  };
+
+  // Stage 1a: cluster blobs
+  if (step === 1 && algo.clusters) {
+    algo.clusters.forEach((c, i) => {
+      const pts = c.agents.map(a => [sx(agentById[a].x), sy(agentById[a].y)]).concat(c.tasks.map(t => [sx(taskById[t].x), sy(taskById[t].y)]));
+      if (!pts.length) return;
+      const hp = hull(pts), col = PALETTE[i % PALETTE.length];
+      const d = "M" + hp.map(p => p.join(",")).join("L") + (hp.length > 2 ? "Z" : "");
+      const blob = el("path", { d, fill: col, "fill-opacity": .12, stroke: col, "stroke-opacity": .16, "stroke-width": 24, "stroke-linejoin": "round", "stroke-linecap": "round" }, svg);
+      hoverable(blob, `<b>Cluster ${i + 1}</b><br>${c.agents.length} robot(s): ${c.agents.map(a => "R" + a).join(", ")}<br>${c.tasks.length} task(s): ${c.tasks.map(t => "T" + t).join(", ") || "none"}`);
+    });
+  }
+
+  // Stage 2: preference graph between robots
+  if (step === 3) {
+    // Draw only the stronger half of the pairs so the structure stays readable.
+    const ids = R.player_ids, W = R.W, pairs = [];
+    for (let i = 0; i < ids.length; i++) for (let j = i + 1; j < ids.length; j++) pairs.push([i, j, (W[i][j] + W[j][i]) / 2]);
+    pairs.sort((p, q) => q[2] - p[2]);
+    const keep = pairs.slice(0, Math.max(ids.length, Math.ceil(pairs.length / 2))), wmax = Math.max(keep[0] ? keep[0][2] : 0, 1e-9);
+    const wmin = keep.length ? keep[keep.length - 1][2] : 0;
+    for (const [i, j, w] of keep) {
+      if (w <= 0) continue;
+      const a = agentById[ids[i]], b = agentById[ids[j]], f = (w - wmin) / Math.max(wmax - wmin, 1e-9);
+      const ln = el("line", { x1: sx(a.x), y1: sy(a.y), x2: sx(b.x), y2: sy(b.y), stroke: css("--accent"), "stroke-opacity": .12 + .6 * f, "stroke-width": .8 + 4.5 * f, "stroke-linecap": "round" }, svg);
+      hoverable(ln, `<b>R${ids[i]} and R${ids[j]}</b><br>w(R${ids[i]}, R${ids[j]}) = ${fmt(W[i][j], 3)}<br>w(R${ids[j]}, R${ids[i]}) = ${fmt(W[j][i], 3)}`);
+    }
+  }
+
+  // Routes
+  if (step === 2 || step === 5) {
+    for (const [aid, legs] of Object.entries(algo.timeline)) {
+      if (!legs.length) continue;
+      const col = robotColor(+aid);
+      const pts = [[sx(legs[0].x0), sy(legs[0].y0)]].concat(legs.map(L => [sx(L.x1), sy(L.y1)]));
+      el("polyline", { points: pts.map(p => p.join(",")).join(" "), fill: "none", stroke: col, "stroke-width": 2, "stroke-opacity": step === 2 ? .3 : .85, "stroke-dasharray": step === 2 ? "5 4" : "none" }, svg);
+      if (step === 2) { // travelled part
+        const cur = robotAt(algo, aid, state.t), tp = [[sx(legs[0].x0), sy(legs[0].y0)]];
+        for (let i = 0; i < cur.done; i++) tp.push([sx(legs[i].x1), sy(legs[i].y1)]);
+        tp.push([sx(cur.x), sy(cur.y)]);
+        el("polyline", { points: tp.map(p => p.join(",")).join(" "), fill: "none", stroke: col, "stroke-width": 3 }, svg);
+      }
+    }
+  }
+
+  // Tasks
+  const tdone = {};
+  if (step === 2) for (const legs of Object.values(algo.timeline)) for (const L of legs) tdone[L.task] = state.t >= L.tf ? "done" : (state.t >= L.ta ? "work" : "todo");
+  for (const t of S.tasks) {
+    const r = 4 + 5 * t.priority / maxPrio, x = sx(t.x), y = sy(t.y);
+    let fill = taskC, stroke = "none", fo = step === 3 ? .35 : .9;
+    if (step === 1 && algo.clusters) fill = colorEntity("T" + t.id, taskC);
+    if (step === 2 || step === 5) { const oc = robotColor(owner[t.id]);
+      if (step === 5 || tdone[t.id] === "done") { fill = oc; } else { fill = css("--card"); stroke = oc; } }
+    const g = el("g", {}, svg);
+    el("rect", { x: x - r, y: y - r, width: 2 * r, height: 2 * r, transform: `rotate(45 ${x} ${y})`, fill, "fill-opacity": fo, stroke, "stroke-width": 2 }, g);
+    if (step === 2 && tdone[t.id] === "work") el("circle", { cx: x, cy: y, r: r + 5, fill: "none", stroke: robotColor(owner[t.id]), "stroke-dasharray": "2 2" }, g);
+    if (state.hover === "T" + t.id) el("circle", { cx: x, cy: y, r: r + 7, fill: "none", stroke: css("--ink"), "stroke-width": 2 }, g);
+    el("text", { x: x + r + 3, y: y - r, "font-size": 10, fill: css("--muted"), opacity: step === 3 ? .4 : 1 }, g, "T" + t.id);
+    hoverable(g, () => {
+      const sh = algo.shapley && algo.shapley["T" + t.id];
+      return `<b>Task T${t.id}</b><br>priority ${fmt(t.priority, 2)}, work ${fmt(t.exec, 1)} s<br>at (${fmt(t.x, 0)}, ${fmt(t.y, 0)})` +
+        (owner[t.id] !== undefined ? `<br>served by R${owner[t.id]}` : "") + (sh !== undefined ? `<br>Shapley phi = ${fmt(sh, 2)}` : "");
+    });
+  }
+
+  // Robots
+  for (const a of S.agents) {
+    let x = a.x, y = a.y, extra = "";
+    if (step === 2) { const st = robotAt(algo, a.id, state.t); x = st.x; y = st.y; extra = `<br>${st.status}<br>energy ${fmt(st.energy, 0)} / ${fmt(a.capacity, 0)}`; }
+    const r = 7 + 5 * a.v / maxV, cx = sx(x), cy = sy(y);
+    let fill = robotColor(a.id);
+    if (step === 1 && algo.clusters) fill = colorEntity("R" + a.id, fill);
+    const g = el("g", {}, svg);
+    if (step === 2) { // battery ring
+      const st = robotAt(algo, a.id, state.t), frac = Math.max(0, st.energy / a.capacity);
+      const C = 2 * Math.PI * (r + 4);
+      el("circle", { cx, cy, r: r + 4, fill: "none", stroke: css("--grid"), "stroke-width": 3 }, g);
+      el("circle", { cx, cy, r: r + 4, fill: "none", stroke: frac < .2 ? css("--bad") : css("--good"), "stroke-width": 3,
+        "stroke-dasharray": `${C * frac} ${C}`, transform: `rotate(-90 ${cx} ${cy})` }, g);
+    }
+    if (state.hover === "R" + a.id) el("circle", { cx, cy, r: r + 9, fill: "none", stroke: css("--ink"), "stroke-width": 2 }, g);
+    el("circle", { cx, cy, r, fill, stroke: css("--card"), "stroke-width": 2 }, g);
+    el("text", { x: cx, y: cy + 3.5, "text-anchor": "middle", "font-size": 9.5, "font-weight": 700, fill: "#fff" }, g, a.id);
+    hoverable(g, () => `<b>Robot R${a.id}</b><br>speed ${fmt(a.v, 1)} m/s, battery ${fmt(a.capacity, 0)}<br>usage penalty lambda ${fmt(a.penalty, 2)}` + extra);
+  }
+  drawLegend();
+}
+
+// ---------------------------------------------------------------- team choice
+const tcCurrent = () => TC.by_algorithm[A().name][TC.rules[state.tcRule].label];
+const tcRuleName = r => r.rule === "equal" ? "Equal split" : r.rule === "shapley" ? "Classical Shapley" : `Preference-aware (alpha=${r.alpha})`;
+function tcTeamsAt(tc, k) {
+  const teams = tc.initial.map(c => ({ agents: new Set(c.agents), tasks: c.tasks }));
+  const placed = new Set(teams.flatMap(t => [...t.agents])), idle = new Set(S.agents.map(a => a.id).filter(id => !placed.has(id)));
+  for (const m of tc.moves.slice(0, k)) {
+    if (m.from === -1) idle.delete(m.robot); else teams[m.from].agents.delete(m.robot);
+    if (m.to === -1) idle.add(m.robot); else teams[m.to].agents.add(m.robot);
+  }
+  return { teams, idle };
+}
+function drawTeamChoice(svg) {
+  const tc = tcCurrent(), k = state.tcMove ?? tc.moves.length, { teams, idle } = tcTeamsAt(tc, k);
+  const teamOf = {}; teams.forEach((t, i) => t.agents.forEach(a => teamOf[a] = i));
+  const defs = el("defs", {}, svg), mk = el("marker", { id: "arrow", viewBox: "0 0 10 10", refX: 9, refY: 5, markerWidth: 7, markerHeight: 7, orient: "auto-start-reverse" }, defs);
+  el("path", { d: "M0,0 L10,5 L0,10 z", fill: css("--ink") }, mk);
+  const centroid = t => { const pts = [...t.agents].map(a => agentById[a]).concat(t.tasks.map(x => taskById[x]));
+    return pts.length ? [pts.reduce((s, p) => s + p.x, 0) / pts.length, pts.reduce((s, p) => s + p.y, 0) / pts.length] : [S.width / 2, S.height / 2]; };
+  teams.forEach((t, i) => {
+    const pts = [...t.agents].map(a => [sx(agentById[a].x), sy(agentById[a].y)]).concat(t.tasks.map(x => [sx(taskById[x].x), sy(taskById[x].y)]));
+    if (!pts.length) return;
+    const hp = hull(pts), col = PALETTE[i % PALETTE.length];
+    const blob = el("path", { d: "M" + hp.map(p => p.join(",")).join("L") + (hp.length > 2 ? "Z" : ""), fill: col, "fill-opacity": .1, stroke: col, "stroke-opacity": .16, "stroke-width": 24, "stroke-linejoin": "round", "stroke-linecap": "round" }, svg);
+    hoverable(blob, `<b>Team ${i + 1}</b><br>robots: ${[...t.agents].sort((a, b) => a - b).map(a => "R" + a).join(", ") || "none"}<br>${t.tasks.length} task(s)`);
+  });
+  if (state.tcRoutes && k === tc.moves.length) {
+    for (const [aid, legs] of Object.entries(tc.timeline_after)) { if (!legs.length) continue;
+      const pts = [[sx(legs[0].x0), sy(legs[0].y0)]].concat(legs.map(L => [sx(L.x1), sy(L.y1)]));
+      el("polyline", { points: pts.map(p => p.join(",")).join(" "), fill: "none", stroke: PALETTE[(teamOf[aid] ?? 0) % PALETTE.length], "stroke-width": 2, "stroke-opacity": .85 }, svg); }
+  }
+  for (const t of S.tasks) {
+    const ti = teams.findIndex(tm => tm.tasks.includes(t.id)), r = 4 + 5 * t.priority / maxPrio, x = sx(t.x), y = sy(t.y);
+    const g = el("g", {}, svg);
+    el("rect", { x: x - r, y: y - r, width: 2 * r, height: 2 * r, transform: `rotate(45 ${x} ${y})`, fill: PALETTE[ti % PALETTE.length], "fill-opacity": .75 }, g);
+    hoverable(g, `<b>Task T${t.id}</b><br>team ${ti + 1}, priority ${fmt(t.priority, 2)}`);
+  }
+  const moving = k > 0 ? tc.moves[k - 1] : null, unstable = new Set(tc.unstable);
+  if (moving && moving.to !== -1) {
+    const a = agentById[moving.robot], [cx, cy] = centroid(teams[moving.to]);
+    el("line", { x1: sx(a.x), y1: sy(a.y), x2: sx(cx), y2: sy(cy), stroke: css("--ink"), "stroke-width": 2, "stroke-dasharray": "6 4", "marker-end": "url(#arrow)" }, svg);
+  }
+  for (const a of S.agents) {
+    const r = 7 + 5 * a.v / maxV, cx = sx(a.x), cy = sy(a.y), g = el("g", {}, svg);
+    const fill = idle.has(a.id) ? css("--task") : PALETTE[(teamOf[a.id] ?? 0) % PALETTE.length];
+    if (unstable.has(a.id)) el("circle", { cx, cy, r: r + 5, fill: "none", stroke: css("--bad"), "stroke-width": 2, "stroke-dasharray": "3 2" }, g);
+    if (moving && moving.robot === a.id) el("circle", { cx, cy, r: r + 9, fill: "none", stroke: css("--ink"), "stroke-width": 2 }, g);
+    el("circle", { cx, cy, r, fill, stroke: css("--card"), "stroke-width": 2 }, g);
+    el("text", { x: cx, y: cy + 3.5, "text-anchor": "middle", "font-size": 9.5, "font-weight": 700, fill: "#fff" }, g, a.id);
+    hoverable(g, () => `<b>Robot R${a.id}</b><br>${idle.has(a.id) ? "idle" : "team " + (teamOf[a.id] + 1)}<br>payoff before ${fmt(tc.payoff_before[a.id], 1)}, after ${fmt(tc.payoff_after[a.id], 1)}` + (unstable.has(a.id) ? "<br>wanted to leave its Stage-1 team" : ""));
+  }
+}
+
+function panelTeamChoice(P) {
+  const algo = A(), tc = tcCurrent(), n = S.agents.length, k = state.tcMove ?? tc.moves.length;
+  P.innerHTML = `<h2>${STEPS[4][0]}: ${algo.name}</h2><p class="desc">${STEPS[4][1]}</p>`;
+  const pills = h("div", { className: "bar" }); pills.innerHTML = `<span class="lbl">Reward rule</span>`;
+  TC.rules.forEach((r, i) => { const b = h("button", { className: "pill" + (i === state.tcRule ? " on" : ""), textContent: tcRuleName(r) });
+    b.addEventListener("click", () => { state.tcRule = i; state.tcMove = null; render(); }); pills.appendChild(b); });
+  P.appendChild(pills);
+  const k1 = h("div"); k1.innerHTML = kpis([
+    ["Want to leave", `${tc.unstable.length} / ${n}`], ["Moves", tc.moves.length],
+    ["Rounds", `${tc.rounds}${tc.converged ? " (stable)" : tc.cycled ? " (cycle)" : " (cap)"}`], ["Tasks changed robot", tc.tasks_reassigned]]) +
+    kpis([["Cost before", fmt(tc.cost_before, 0)], ["Cost after", `${fmt(tc.cost_after, 0)} (${tc.cost_change_pct > 0 ? "+" : ""}${fmt(tc.cost_change_pct, 1)}%)`],
+          ["Gini before", fmt(tc.gini_before, 3)], ["Gini after", fmt(tc.gini_after, 3)]]);
+  P.appendChild(k1);
+  const ctl = h("div", { className: "controls" });
+  ctl.innerHTML = `<label>move</label><input type="range" min="0" max="${tc.moves.length}" step="1" value="${k}"><span class="mono">${k} / ${tc.moves.length}</span>` +
+    `<label style="display:inline-flex;gap:4px;align-items:center"><input type="checkbox" ${state.tcRoutes ? "checked" : ""}> re-planned routes</label>`;
+  const [slider, box] = ctl.querySelectorAll("input");
+  slider.addEventListener("input", e => { state.tcMove = +e.target.value; render(); });
+  box.addEventListener("change", e => { state.tcRoutes = e.target.checked; state.tcMove = null; render(); });
+  P.appendChild(ctl);
+  const m = k > 0 ? tc.moves[k - 1] : null, desc = h("div", { className: "note" });
+  desc.innerHTML = !tc.moves.length
+    ? `Nobody wants to move: the ${algo.name} teams are already Nash stable under this rule.`
+    : m ? `Round ${m.round}: <b>R${m.robot}</b> leaves ${m.from === -1 ? "idle" : "team " + (m.from + 1)} for ${m.to === -1 ? "idling" : "team " + (m.to + 1)}, its payoff goes ${fmt(m.payoff_before, 1)} to ${fmt(m.payoff_after, 1)}.`
+        : `Stage-1 teams as ${algo.name} built them. Red dashed rings mark robots that would rather be elsewhere. Drag the slider to replay their moves.`;
+  P.appendChild(desc);
+  const tbl = h("div");
+  tbl.innerHTML = `<h3>Payoff per robot</h3><div class="scroll"><table><tr><th>Robot</th><th>Before</th><th>After</th><th>Change</th></tr>${S.agents.map(a => {
+    const b = tc.payoff_before[a.id], af = tc.payoff_after[a.id];
+    return `<tr><td>R${a.id}${tc.unstable.includes(a.id) ? " *" : ""}</td><td>${fmt(b, 1)}</td><td>${fmt(af, 1)}</td><td>${af - b >= 0 ? "+" : ""}${fmt(af - b, 1)}</td></tr>`; }).join("")}</table></div>
+    <p class="desc">* wanted to leave its Stage-1 team. A team's reward is its own value V(C), so a robot that joins another team also changes its new teammates' shares.</p>`;
+  P.appendChild(tbl);
+}
+
+function drawLegend() {
+  const L = $("maplegend"), step = state.step, algo = A();
+  const items = [];
+  if (step === 1 && algo.clusters) items.push(`<span>Colour = cluster. Blob = convex hull of a coalition.</span>`);
+  else if (step !== 1) items.push(...S.agents.map(a => `<span><i class="sw" style="background:${robotColor(a.id)};border-radius:50%"></i>R${a.id}</span>`));
+  if (step === 0) items.push(`<span>Circle size = speed, diamond size = task priority</span>`);
+  if (step === 2) items.push(`<span>Ring = battery left. Hollow diamond = not done yet.</span>`);
+  if (step === 3) items.push(`<span>Line thickness = cooperation preference w between two robots</span>`);
+  if (step === 4) { items.length = 0; items.push(`<span>Colour = team. Red dashed ring = robot that wanted to leave. Arrow = the current move.</span>`); }
+  L.innerHTML = items.join("");
+}
+
+// ---------------------------------------------------------------- small charts
+function axisChart(parent, { width = 460, height = 200, xs, series, xLabel, yLabel, markX }) {
+  const svg = el("svg", { viewBox: `0 0 ${width} ${height}`, class: "chart" }, parent);
+  const m = { l: 46, r: 10, t: 10, b: 30 }, W = width - m.l - m.r, H = height - m.t - m.b;
+  const all = series.flatMap(s => s.ys), lo = Math.min(0, ...all), hi = Math.max(...all) * 1.05 || 1;
+  const x0 = Math.min(...xs), x1 = Math.max(...xs);
+  const X = v => m.l + (x1 === x0 ? W / 2 : (v - x0) / (x1 - x0) * W), Y = v => m.t + H - (v - lo) / (hi - lo) * H;
+  const ax = el("g", { class: "axis" }, svg);
+  for (let i = 0; i <= 4; i++) { const v = lo + (hi - lo) * i / 4;
+    el("line", { x1: m.l, x2: m.l + W, y1: Y(v), y2: Y(v), stroke: css("--grid") }, ax);
+    el("text", { x: m.l - 6, y: Y(v) + 3, "text-anchor": "end" }, ax, fmt(v, Math.abs(hi) < 5 ? 2 : 0)); }
+  for (let i = 0; i <= 4; i++) { const v = x0 + (x1 - x0) * i / 4; el("text", { x: X(v), y: m.t + H + 14, "text-anchor": "middle" }, ax, fmt(v, Math.abs(x1) < 10 ? 1 : 0)); }
+  if (xLabel) el("text", { x: m.l + W / 2, y: height - 2, "text-anchor": "middle" }, ax, xLabel);
+  if (yLabel) el("text", { x: 10, y: m.t + H / 2, "text-anchor": "middle", transform: `rotate(-90 10 ${m.t + H / 2})` }, ax, yLabel);
+  if (markX !== undefined) el("line", { x1: X(markX), x2: X(markX), y1: m.t, y2: m.t + H, stroke: css("--muted"), "stroke-dasharray": "3 3" }, svg);
+  for (const s of series) {
+    el("polyline", { points: xs.map((x, i) => `${X(x)},${Y(s.ys[i])}`).join(" "), fill: "none", stroke: s.color, "stroke-width": 2 }, svg);
+    if (s.dots) xs.forEach((x, i) => { const c = el("circle", { cx: X(x), cy: Y(s.ys[i]), r: 3.5, fill: s.color }, svg);
+      if (s.tip) hoverable(c, s.tip(i)); });
+  }
+  return svg;
+}
+
+function shapleyChart(parent, algo) {
+  const entries = Object.entries(algo.shapley).sort((a, b) => b[1] - a[1]);
+  const rowH = 15, width = 460, m = { l: 40, r: 50 }, height = entries.length * rowH + 20;
+  const svg = el("svg", { viewBox: `0 0 ${width} ${height}`, class: "chart" }, parent);
+  const vals = entries.map(e => e[1]), lo = Math.min(0, ...vals), hi = Math.max(0, ...vals);
+  const W = width - m.l - m.r, X = v => m.l + (v - lo) / ((hi - lo) || 1) * W;
+  el("line", { x1: X(0), x2: X(0), y1: 0, y2: height - 18, stroke: css("--muted") }, svg);
+  const clus = clusterOf(algo);
+  entries.forEach(([label, v], i) => {
+    const y = 4 + i * rowH, col = label[0] === "R" ? robotColor(+label.slice(1)) : (algo.clusters ? PALETTE[(clus[label] ?? 0) % PALETTE.length] : css("--task"));
+    const g = el("g", {}, svg);
+    el("rect", { x: Math.min(X(0), X(v)), y, width: Math.max(1, Math.abs(X(v) - X(0))), height: rowH - 4, fill: col, "fill-opacity": label[0] === "R" ? 1 : .55, rx: 2 }, g);
+    el("text", { x: m.l - 6, y: y + rowH - 6, "text-anchor": "end", "font-size": 10, "font-weight": label[0] === "R" ? 700 : 400 }, g, label);
+    el("text", { x: Math.max(X(0), X(v)) + 4, y: y + rowH - 6, "font-size": 9.5, fill: css("--muted") }, g, fmt(v, 1));
+    g.addEventListener("mouseenter", () => { state.hover = label; drawMap(); });
+    g.addEventListener("mouseleave", () => { state.hover = null; drawMap(); });
+  });
+  const ax = el("g", { class: "axis" }, svg);
+  el("text", { x: m.l, y: height - 4 }, ax, fmt(lo, 0)); el("text", { x: m.l + W, y: height - 4, "text-anchor": "end" }, ax, fmt(hi, 0));
+}
+
+function groupedBars(parent, groups, series) {
+  // groups: labels; series: [{name,color,vals,err?}]
+  const width = 460, height = 220, m = { l: 40, r: 8, t: 8, b: 26 }, W = width - m.l - m.r, H = height - m.t - m.b;
+  const svg = el("svg", { viewBox: `0 0 ${width} ${height}`, class: "chart" }, parent);
+  const hi = Math.max(...series.flatMap(s => s.vals.map((v, i) => v + (s.err ? s.err[i] : 0))), 1e-9) * 1.08;
+  const Y = v => m.t + H - v / hi * H, gw = W / groups.length, bw = Math.min(16, (gw - 8) / series.length);
+  const ax = el("g", { class: "axis" }, svg);
+  for (let i = 0; i <= 4; i++) { const v = hi * i / 4; el("line", { x1: m.l, x2: m.l + W, y1: Y(v), y2: Y(v), stroke: css("--grid") }, ax);
+    el("text", { x: m.l - 5, y: Y(v) + 3, "text-anchor": "end" }, ax, fmt(v, 0) + "%"); }
+  groups.forEach((g, gi) => {
+    const gx = m.l + gi * gw + (gw - bw * series.length) / 2;
+    series.forEach((s, si) => {
+      const v = s.vals[gi], x = gx + si * bw;
+      const r = el("rect", { x, y: Y(v), width: bw - 2, height: Math.max(0, Y(0) - Y(v)), fill: s.color, rx: 1.5 }, svg);
+      hoverable(r, `<b>${g}</b>, ${s.name}<br>${fmt(v, 1)}% of V(N)` + (s.abs ? `<br>= ${fmt(s.abs[gi], 1)}` : "") + (s.err ? `<br>MCMC std. error ${fmt(s.err[gi], 1)}%` : ""));
+      if (s.err && s.err[gi] > 0) { const cx = x + (bw - 2) / 2;
+        el("line", { x1: cx, x2: cx, y1: Y(v + s.err[gi]), y2: Y(Math.max(0, v - s.err[gi])), stroke: css("--ink"), "stroke-width": 1 }, svg); }
+    });
+    el("text", { x: m.l + gi * gw + gw / 2, y: m.t + H + 15, "text-anchor": "middle", "font-size": 11, "font-weight": 600 }, svg, g);
+  });
+  const lg = h("div", { className: "legend" });
+  lg.innerHTML = series.map(s => `<span><i class="sw" style="background:${s.color}"></i>${s.name}</span>`).join("");
+  parent.appendChild(lg);
+}
+
+// ---------------------------------------------------------------- side panel per step
+function kpis(list) { return `<div class="kpis">${list.map(([k, v]) => `<div class="kpi"><div class="k">${k}</div><div class="v">${v}</div></div>`).join("")}</div>`; }
+
+function panelScenario(P) {
+  P.innerHTML = `<h2>${STEPS[0][0]}</h2><p class="desc">${STEPS[0][1]}</p>` +
+    kpis([["Robots", S.agents.length], ["Tasks", S.tasks.length], ["Map", `${S.width} m`], ["Seed", S.seed]]) +
+    `<h3>Robots</h3><div class="scroll"><table><tr><th>Robot</th><th>Speed m/s</th><th>Battery</th><th>Penalty lambda</th></tr>${S.agents.map(a =>
+      `<tr><td><i class="sw" style="background:${robotColor(a.id)};border-radius:50%"></i> R${a.id}</td><td>${fmt(a.v, 1)}</td><td>${fmt(a.energy, 0)} / ${fmt(a.capacity, 0)}</td><td>${fmt(a.penalty, 2)}</td></tr>`).join("")}</table></div>` +
+    `<h3>Tasks</h3><div class="scroll"><table><tr><th>Task</th><th>Priority</th><th>Work time s</th><th>Location</th></tr>${S.tasks.map(t =>
+      `<tr><td>T${t.id}</td><td>${fmt(t.priority, 2)}</td><td>${fmt(t.exec, 1)}</td><td>(${fmt(t.x, 0)}, ${fmt(t.y, 0)})</td></tr>`).join("")}</table></div>`;
+}
+
+function panelClustering(P) {
+  const algo = A();
+  P.innerHTML = `<h2>${STEPS[1][0]}: ${algo.name}</h2><p class="desc">${algo.description}</p>`;
+  if (!algo.clusters) {
+    P.innerHTML += `<div class="note">${algo.name} does not partition the problem. It plans for all robots and tasks at once, which is what becomes too slow as the team grows. Pick an SVCA or GA variant above to see clustering.</div>`;
+    return;
+  }
+  P.innerHTML += kpis([["Clusters", algo.clusters.length]].concat(algo.extra.q_used ? [["Permutations q", algo.extra.q_used]] : []));
+  P.innerHTML += `<h3>Clusters</h3><div class="scroll"><table><tr><th>Cluster</th><th>Robots</th><th>Tasks</th></tr>${algo.clusters.map((c, i) =>
+    `<tr><td><i class="sw" style="background:${PALETTE[i % PALETTE.length]}"></i> C${i + 1}</td><td>${c.agents.map(a => "R" + a).join(" ") || "none"}</td><td style="white-space:normal;text-align:right">${c.tasks.map(t => "T" + t).join(" ") || "none"}</td></tr>`).join("")}</table></div>`;
+  if (algo.shapley) {
+    const box = h("div"); box.innerHTML = `<h3>Shapley value of every robot and task</h3><p class="desc">Estimated from ${algo.extra.q_used || "sampled"} random permutations. Robots and tasks are ranked by this value to grow the clusters. Hover a bar to find it on the map.</p>`;
+    P.appendChild(box); shapleyChart(box, algo);
+  }
+  if (algo.v_curve) {
+    const box = h("div"); box.innerHTML = `<h3>Clustering value V(C) per round</h3><p class="desc">SVCA builds one clustering per round and keeps the best (dashed line).</p>`;
+    P.appendChild(box);
+    const vc = algo.v_curve, best = vc.reduce((b, p) => p.V > b.V ? p : b, vc[0]);
+    axisChart(box, { height: 170, xs: vc.map(p => p.num_clusters), series: [{ ys: vc.map(p => p.V), color: css("--accent"), dots: true,
+      tip: i => `${vc[i].num_clusters} clusters: V = ${fmt(vc[i].V, 1)}` }], xLabel: "number of clusters", yLabel: "V(C)", markX: best.num_clusters });
+  }
+}
+
+function panelExecution(P) {
+  const algo = A(), owner = ownerMap(algo);
+  const done = Object.values(algo.timeline).flat().filter(L => state.t >= L.tf).length;
+  P.innerHTML = `<h2>${STEPS[2][0]}: ${algo.name}</h2><p class="desc">${STEPS[2][1]} Press Play or drag the time slider.</p>` +
+    kpis([["Time", fmt(state.t, 0) + " s"], ["Tasks done", `${done} / ${S.tasks.length}`], ["Makespan", fmt(algo.makespan, 0) + " s"], ["Cost A(U)", fmt(algo.cost, 0)]]) +
+    `<h3>Robots</h3><div class="scroll"><table><tr><th>Robot</th><th>Status</th><th>Battery</th><th>Route</th></tr>${S.agents.map(a => {
+      const st = robotAt(algo, a.id, state.t), frac = Math.max(0, st.energy / a.capacity), route = algo.routes[a.id] || [];
+      const col = frac < .2 ? "var(--bad)" : "var(--good)";
+      return `<tr><td><i class="sw" style="background:${robotColor(a.id)};border-radius:50%"></i> R${a.id}</td><td style="text-align:left">${st.status}</td>
+        <td><div class="ebar" title="${fmt(st.energy, 0)}"><i style="width:${100 * frac}%;background:${col}"></i></div></td>
+        <td style="text-align:left;white-space:normal">${route.map((t, i) => i < st.done ? `<s>T${t}</s>` : `T${t}`).join(" ") || "none"}</td></tr>`; }).join("")}</table></div>` +
+    `<h3>Where the cost comes from</h3>` +
+    kpis([["Priority x completion", fmt(algo.priority_cost, 0)], ["Travel (lambda x d)", fmt(algo.travel_cost, 0)], ["Energy penalty", fmt(algo.energy_penalty, 0)]]) +
+    `<p class="desc">A(U) = sum of priority x completion time, plus each robot's usage penalty x distance, plus a penalty for any energy shortfall. Speed drops as the battery drains, which is why routes that start with long trips cost more later.</p>`;
+}
+
+function panelReward(P) {
+  const algo = A(), RA = R.by_algorithm[algo.name], ids = R.player_ids;
+  const sw = RA.sweep[state.alphaIdx], base = RA.sweep.find(s => s.alpha === 0), V = sw.value || 1;
+  const pct = arr => arr.map(v => 100 * v / V), equal = ids.map(() => V / ids.length);
+  const contrib = ids.map(i => algo.contribution[i] || 0), csum = contrib.reduce((a, b) => a + b, 0) || 1;
+  P.innerHTML = `<h2>${STEPS[3][0]}: ${algo.name}</h2><p class="desc">${STEPS[3][1]} Alpha controls how strongly the cooperation preferences (lines on the map) bias which joining orders are sampled. Alpha = 0 is the classical Shapley value.</p>`;
+  const ctl = h("div", { className: "controls" });
+  ctl.innerHTML = `<label for="alpha">alpha</label><input type="range" id="alpha" min="0" max="${RA.sweep.length - 1}" step="1" value="${state.alphaIdx}"><span class="mono">alpha = ${sw.alpha}</span>`;
+  P.appendChild(ctl);
+  ctl.querySelector("input").addEventListener("input", e => { state.alphaIdx = +e.target.value; renderPanel(); });
+  const k = h("div"); k.innerHTML = kpis([["Value to share", fmt(V, 0)], ["Reward games", RA.num_games], ["Gini (alpha)", fmt(sw.gini, 3)], ["Gini (classical)", fmt(base.gini, 3)]]);
+  P.appendChild(k);
+  const box = h("div"); box.innerHTML = `<h3>Share of the reward per robot</h3>`; P.appendChild(box);
+  groupedBars(box, ids.map(i => "R" + i), [
+    { name: `Preference-aware (alpha=${sw.alpha})`, color: css("--accent"), vals: pct(sw.payoffs), abs: sw.payoffs },
+    { name: "Classical Shapley (alpha=0)", color: "#9aa4b2", vals: pct(base.payoffs), abs: base.payoffs },
+    { name: "Equal split", color: "#d7b46a", vals: pct(equal), abs: equal },
+    { name: `Work done in this plan`, color: "#1baf7a", vals: contrib.map(c => 100 * c / csum) },
+  ]);
+  const note = h("div", { className: "note" });
+  note.innerHTML = RA.num_games > 1
+    ? `${algo.name} split the team into ${RA.num_games} coalitions, so the reward is ${RA.num_games} separate games: a robot can only earn from tasks in its own cluster, and preferences only act inside it. This is the same computation the benchmark uses (reward.decomposition = clusters). Green bars show each robot's share of the task value u[r,t] it actually delivers in this plan.`
+    : `${algo.name} does not partition the team, so the whole team plays one reward game (the same for every non-clustering algorithm). Green bars show each robot's share of the task value u[r,t] it actually delivers in this plan.`;
+  P.appendChild(note);
+  const tr = R.trace, conv = h("div");
+  const g = h("div"); g.innerHTML = `<h3>Fairness vs alpha, every algorithm</h3><p class="desc">Gini of the merged payoffs (0 = equal shares). Selected algorithm in colour; hover a dot for values.</p>`; P.appendChild(g);
+  const others = DATA.algorithms.filter(a => a.name !== algo.name).map(a => ({ ys: R.by_algorithm[a.name].sweep.map(s => s.gini), color: css("--line"), dots: true,
+    tip: i => `${a.name}, alpha ${R.alphas[i]}: Gini ${fmt(R.by_algorithm[a.name].sweep[i].gini, 3)}` }));
+  axisChart(g, { height: 170, xs: R.alphas, series: others.concat([{ ys: RA.sweep.map(s => s.gini), color: css("--accent"), dots: true,
+    tip: i => `${algo.name}, alpha ${R.alphas[i]}: Gini ${fmt(RA.sweep[i].gini, 3)}` }]), xLabel: "alpha", yLabel: "Gini", markX: sw.alpha });
+  conv.innerHTML = `<h3>How the Glauber MCMC estimate converges (whole team, alpha = ${R.alpha_default})</h3><p class="desc">Running mean of each robot's marginal contribution over ${tr.step[tr.step.length - 1]} samples (burn-in ${tr.burn_in}, ${tr.thin} Glauber steps between samples, acceptance ${fmt(tr.acceptance * 100, 0)}%). Flat lines mean the estimate has settled.</p>`;
+  P.appendChild(conv);
+  axisChart(conv, { height: 190, xs: tr.step, series: ids.map((id, j) => ({ ys: tr.running.map(r => r[j]), color: robotColor(id) })), xLabel: "MCMC sample", yLabel: "phi estimate" });
+}
+
+function panelCompare(P) {
+  const algos = DATA.algorithms, best = Math.min(...algos.map(a => a.cost));
+  P.innerHTML = `<h2>${STEPS[5][0]}</h2><p class="desc">${STEPS[5][1]} Lower cost is better. Click a row to show that plan on the map.</p>` +
+    `<div class="scroll"><table id="cmp"><tr><th>Algorithm</th><th>Cost A(U)</th><th>vs best</th><th>Makespan s</th><th>Clusters</th><th>Runtime s</th></tr>${algos.map((a, i) =>
+      `<tr data-i="${i}" class="${i === state.algo ? "sel" : ""}" style="cursor:pointer"><td>${a.name}</td><td>${fmt(a.cost, 0)}</td><td>${a.cost === best ? "best" : "+" + fmt(100 * (a.cost / best - 1), 1) + "%"}</td><td>${fmt(a.makespan, 0)}</td><td>${a.clusters ? a.clusters.length : "none"}</td><td>${fmt(a.runtime, 3)}</td></tr>`).join("")}</table></div>`;
+  P.querySelectorAll("#cmp tr[data-i]").forEach(tr => tr.addEventListener("click", () => selectAlgo(+tr.dataset.i)));
+  const box = h("div"); box.innerHTML = `<h3>Cost breakdown</h3>`; P.appendChild(box);
+  const width = 460, rowH = 26, m = { l: 96, r: 60 }, height = algos.length * rowH + 8;
+  const svg = el("svg", { viewBox: `0 0 ${width} ${height}`, class: "chart" }, box), hi = Math.max(...algos.map(a => a.cost)), Wd = width - m.l - m.r;
+  const parts = [["priority_cost", css("--accent"), "priority x completion"], ["travel_cost", "#eb6834", "travel"], ["energy_penalty", "#9b59d0", "energy penalty"]];
+  algos.forEach((a, i) => { let x = m.l; const y = 4 + i * rowH;
+    el("text", { x: m.l - 6, y: y + 15, "text-anchor": "end", "font-size": 11, "font-weight": i === state.algo ? 700 : 400 }, svg, a.name);
+    parts.forEach(([k, c, n]) => { const w = (a[k] || 0) / hi * Wd; if (w <= 0) return;
+      const r = el("rect", { x, y, width: w, height: rowH - 8, fill: c, rx: 2 }, svg); hoverable(r, `<b>${a.name}</b><br>${n}: ${fmt(a[k], 0)}`); x += w; });
+    el("text", { x: x + 5, y: y + 14, "font-size": 10, fill: css("--muted") }, svg, fmt(a.cost, 0)); });
+  const lg = h("div", { className: "legend" }); lg.innerHTML = parts.map(([, c, n]) => `<span><i class="sw" style="background:${c}"></i>${n}</span>`).join(""); box.appendChild(lg);
+}
+
+function renderPanel() {
+  const P = $("panel"); P.innerHTML = "";
+  [panelScenario, panelClustering, panelExecution, panelReward, panelTeamChoice, panelCompare][state.step](P);
+}
+
+// ---------------------------------------------------------------- wiring
+function selectAlgo(i) {
+  state.algo = i; state.t = Math.min(state.t, A().makespan);
+  document.querySelectorAll("#algos button").forEach((b, j) => b.classList.toggle("on", j === i));
+  syncTime(); render();
+}
+function selectStep(i) {
+  state.step = i; state.playing = false; $("play").textContent = "Play";
+  document.querySelectorAll("#steps button").forEach((b, j) => b.classList.toggle("on", j === i));
+  $("playback").style.display = i === 2 ? "flex" : "none";
+  if (i === 2 && state.t === 0) { state.t = 0; }
+  render();
+}
+function syncTime() { const s = $("time"); s.max = A().makespan; s.value = state.t; $("clock").textContent = `t = ${fmt(state.t, 1)} s`; }
+function render() { drawMap(); renderPanel(); }
+
+function init() {
+  $("subtitle").textContent = `Scenario "${S.name}", ${S.agents.length} robots, ${S.tasks.length} tasks, seed ${S.seed}. Every number here comes from the project's real solvers.`;
+  DATA.algorithms.forEach((a, i) => { const b = h("button", { className: "pill" + (i === 0 ? " on" : ""), textContent: a.name, title: a.description });
+    b.addEventListener("click", () => selectAlgo(i)); $("algos").appendChild(b); });
+  STEPS.forEach(([name], i) => { const b = h("button", {}, `<span class="n">${i + 1}</span>${name}`); b.addEventListener("click", () => selectStep(i)); $("steps").appendChild(b); });
+  $("play").addEventListener("click", () => { if (state.t >= A().makespan) state.t = 0; state.playing = !state.playing; $("play").textContent = state.playing ? "Pause" : "Play"; });
+  $("restart").addEventListener("click", () => { state.t = 0; syncTime(); render(); });
+  $("speed").addEventListener("change", e => state.speed = +e.target.value);
+  $("time").addEventListener("input", e => { state.t = +e.target.value; state.playing = false; $("play").textContent = "Play"; syncTime(); render(); });
+  $("theme").addEventListener("click", () => { const r = document.documentElement, dark = r.dataset.theme ? r.dataset.theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
+    r.dataset.theme = dark ? "light" : "dark"; render(); });
+  let last = performance.now(), acc = 0;
+  function frame(now) {
+    const dt = (now - last) / 1000; last = now;
+    if (state.playing && state.step === 2) {
+      state.t = Math.min(A().makespan, state.t + dt * state.speed);
+      if (state.t >= A().makespan) { state.playing = false; $("play").textContent = "Play"; }
+      syncTime(); drawMap(); acc += dt; if (acc > .2 || !state.playing) { renderPanel(); acc = 0; }
+    }
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+  // Optional deep link, e.g. #step=3&algo=1&t=120&alpha=2
+  const q = new URLSearchParams(location.hash.slice(1));
+  if (q.has("algo")) selectAlgo(Math.min(DATA.algorithms.length - 1, Math.max(0, +q.get("algo") || 0)));
+  if (q.has("t")) state.t = Math.min(A().makespan, Math.max(0, +q.get("t") || 0));
+  if (q.has("alpha")) state.alphaIdx = Math.min(R.alphas.length - 1, Math.max(0, +q.get("alpha") || 0));
+  selectStep(Math.min(STEPS.length - 1, Math.max(0, +(q.get("step") || 1) - 1))); syncTime();
+}
+init();
+</script>
+</body>
+</html>

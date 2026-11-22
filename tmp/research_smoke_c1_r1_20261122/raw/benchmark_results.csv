@@ -1,6 +1,0 @@
-experiment_id,scenario_id,algorithm,num_robots,num_tasks,total_entities,random_seed,allocation_cost,allocation_runtime_seconds,reward_runtime_seconds,total_runtime_seconds,allocation_stage_completed,reward_stage_completed,gini_index,invalid_reward_flag,energy_feasible,coalition_stability,success,error_message
-research_smoke_c1_r1_20261122,C1_run00,Greedy,5,5,10,1593276916,1859.6745491584988,0.00027030007913708687,0.09862590010743588,1.8977794999955222,True,True,0.0,False,True,,True,
-research_smoke_c1_r1_20261122,C1_run00,GA,5,5,10,1593276916,1859.6745491584988,0.010845699929632246,0.10019450006075203,1.9490688999649137,True,True,0.0,False,True,,True,
-research_smoke_c1_r1_20261122,C1_run00,SVCA,5,5,10,1593276916,1859.6745491584988,0.002575000049546361,0.11901880009099841,1.8831830999115482,True,True,0.0,False,True,,True,
-research_smoke_c1_r1_20261122,C1_run00,GA_Paper,5,5,10,1593276916,2172.4577407093116,0.07626550004351884,0.11404940008651465,1.9913904001004994,True,True,0.0,False,True,,True,
-research_smoke_c1_r1_20261122,C1_run00,SVCA_Paper,5,5,10,1593276916,1859.6745491584988,0.005919300019741058,0.10482210002373904,1.8400607999647036,True,True,0.0,False,True,,True,

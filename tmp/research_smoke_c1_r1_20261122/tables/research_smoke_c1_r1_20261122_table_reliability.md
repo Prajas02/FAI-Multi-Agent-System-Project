@@ -1,9 +1,0 @@
-*Run outcomes by algorithm and problem configuration*
-
-| Algorithm | Robots | Tasks | N | Attempted | Successful | Failed | Success percent |
-|---:|---:|---:|:---|:---|:---|:---|:---|
-| Greedy | 5 | 5 | 10 | 1 | 1 | 0 | 100.0 |
-| GA | 5 | 5 | 10 | 1 | 1 | 0 | 100.0 |
-| SVCA | 5 | 5 | 10 | 1 | 1 | 0 | 100.0 |
-| GA_Paper | 5 | 5 | 10 | 1 | 1 | 0 | 100.0 |
-| SVCA_Paper | 5 | 5 | 10 | 1 | 1 | 0 | 100.0 |

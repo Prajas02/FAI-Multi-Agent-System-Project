@@ -1,5 +1,10 @@
 """Analytics-owned adapters for Stage-2 reward results.
 
+By default (``reward.decomposition: clusters``) the reward game depends on the Stage-1
+result: one game per allocator cluster, merged into one payoff per robot. Set
+``decomposition: global`` for the single scenario-wide game, which is the same for every
+allocator (any valid plan assigns all tasks).
+
 The current game-theory API returns ``RewardDistribution.payoffs`` keyed by
 ``CharacteristicFunction.player_ids``. The actual characteristic functions set
 those player IDs from ``scenario.agents`` only; tasks contribute value but are
@@ -7,9 +12,10 @@ not payoff recipients, even when task IDs overlap robot IDs.
 """
 
 from dataclasses import dataclass
-from typing import Any, Dict, Iterable, List, Mapping, Sequence, Tuple
+from typing import Any, Dict, Iterable, List, Mapping, Optional, Sequence, Tuple
 
 from src.core.types import RewardDistribution
+from src.game_theory.clustered import solve_by_clusters
 from src.game_theory.solver import PreferenceAwareShapleySolver
 from src.simulation.generator import ScenarioData
 
@@ -21,6 +27,8 @@ class RewardStageInput:
     scenario: ScenarioData
     assignments: Dict[int, List[int]]
     options: Dict[str, Any]
+    # Stage-1 coalitions from the allocator (SVCA / GA). None = the allocator did not partition.
+    clusters: Optional[List[Dict[str, List[int]]]] = None
 
 
 @dataclass(frozen=True)
@@ -88,6 +96,29 @@ def preference_aware_reward_adapter(
     """
     del time_limit_seconds
     options = dict(stage_input.options)
+    if options.get("decomposition", "clusters") == "clusters":
+        # Allocation-aware game (game_theory/clustered.py): each Stage-1 cluster is its own
+        # reward game, so robots earn only from their own coalition's tasks and preferences act
+        # only inside it. Allocators without clusters (Greedy, MILP) play one global game.
+        everyone = [{"agents": [a.agent_id for a in stage_input.scenario.agents],
+                     "tasks": [t.task_id for t in stage_input.scenario.tasks]}]
+        distribution = solve_by_clusters(
+            stage_input.scenario,
+            clusters=stage_input.clusters or everyone,
+            allocation=_AssignmentView(stage_input.assignments),
+            method=options.get("method", "glauber"),
+            value_type=options.get("value_type", "facility"),
+            alpha=options.get("preference_sensitivity_alpha", 1.5),
+            max_log_gamma=options.get("max_log_gamma", 3.0),
+            num_samples=options.get("num_samples_Tw", 1000),
+            burn_in=options.get("burn_in", 200),
+            thin=options.get("thin"),
+            samples_per_stratum=options.get("samples_per_stratum", 10),
+            seed=seed,
+        )
+        if not isinstance(distribution, RewardDistribution):
+            raise TypeError(f"reward solver returned {type(distribution).__name__}, expected RewardDistribution")
+        return distribution
     solver = PreferenceAwareShapleySolver.from_scenario(
         stage_input.scenario,
         allocation=_AssignmentView(stage_input.assignments),

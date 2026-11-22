@@ -34,3 +34,17 @@ data/results/raw/
 .idea/
 .DS_Store
 Thumbs.db
+
+# Packaging build artifacts
+*.egg-info/
+build/
+dist/
+
+# Scratch output (smoke runs, playback bundles)
+tmp/
+
+# Interactive pipeline viewer pages (scripts/visualize_pipeline.py)
+outputs/visualization/
+
+# Team-choice experiment results (scripts/run_team_choice_experiment.py)
+data/results/team_choice/
