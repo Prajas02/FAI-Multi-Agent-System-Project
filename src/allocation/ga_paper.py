@@ -23,10 +23,17 @@ from typing import Any, Dict, List, Optional, Tuple
 
 from src.allocation.base import Allocator
 from src.allocation.evaluator import AllocationEvaluator, Routes
-from src.allocation.insertion import solve_subproblem
+from src.allocation.milp import solve_cluster
 from src.allocation.paper_model import PaperCoalitionModel, PaperParams
 from src.core.types import AllocationResult
 from src.simulation.generator import ScenarioData
+
+
+def _count(items):
+    out = {}
+    for x in items:
+        out[x] = out.get(x, 0) + 1
+    return out
 
 
 @dataclass
@@ -41,6 +48,9 @@ class PaperGAConfig:
     tournament_size: int = 3
     improve: bool = True                # sub-solver local search (same as SVCA)
     local_search_passes: int = 20
+    subsolver: str = "heuristic"         # "heuristic" | "milp"
+    milp_time_limit: float = 30.0
+    milp_gap: float = 1e-4
     seed: Optional[int] = 42
 
 
@@ -128,13 +138,18 @@ class PaperGAAllocator(Allocator):
 
         routes: Routes = {a: [] for a in ev.agent_ids}
         cluster_ids = []
+        sub_info = []
         for members in clusters:
             agents = sorted(model.agents[e].agent_id for e in members if e < R)
             tasks = sorted(model.tasks[e - R].task_id for e in members if e >= R)
             cluster_ids.append({"agents": agents, "tasks": tasks})
             if tasks:
-                routes.update(solve_subproblem(ev, agents, tasks, improve=cfg.improve,
-                                               max_passes=cfg.local_search_passes))
+                cl_routes, info_c = solve_cluster(
+                    ev, agents, tasks, subsolver=cfg.subsolver, improve=cfg.improve,
+                    local_search_passes=cfg.local_search_passes,
+                    milp_time_limit=cfg.milp_time_limit, milp_gap=cfg.milp_gap)
+                routes.update(cl_routes)
+                sub_info.append(info_c)
         t2 = time.perf_counter()
 
         return ev.evaluate(
@@ -147,6 +162,10 @@ class PaperGAAllocator(Allocator):
                 "V": model.value_of_clustering(clusters),
                 "num_clusters": len(clusters),
                 "clusters": cluster_ids,
+                "subsolver": cfg.subsolver,
+                "subsolver_status": _count([i["status"] for i in sub_info]),
+                "subsolver_max_gap": max((i["gap"] for i in sub_info if i["gap"] is not None), default=None),
+                "subsolver_fallbacks": sum(1 for i in sub_info if i["fallback"]),
                 "generations": len(history) - 1,
                 "v_history": history,
                 "rho": model.rho,
