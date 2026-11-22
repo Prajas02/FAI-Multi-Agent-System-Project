@@ -1,0 +1,178 @@
+experiment_id: sample_demo
+created_utc: '2026-11-22T08:00:19.012972+00:00'
+config:
+  experiment:
+    id: benchmark_initial
+    description: Initial benchmark of Centralized MILP, GA-based clustering, Greedy
+      Allocation and SVCA on identical scenarios with 8 initial robot/task configurations.
+    base_seed: 42
+  environment:
+    dimensions: 2
+    width_m: 500
+    height_m: 500
+  benchmark:
+    repetitions_per_configuration: 10
+    algorithms:
+    - MILP
+    - GA
+    - Greedy
+    - SVCA
+    execution_mode: sequential
+    same_scenario_for_all_algorithms: true
+    scenario_id_format: '{config_id}_run{repetition_index:02d}'
+  configurations:
+  - id: C1
+    num_robots: 5
+    num_tasks: 5
+  - id: C2
+    num_robots: 5
+    num_tasks: 15
+  - id: C3
+    num_robots: 10
+    num_tasks: 20
+  - id: C4
+    num_robots: 15
+    num_tasks: 25
+  - id: C5
+    num_robots: 20
+    num_tasks: 30
+  - id: C6
+    num_robots: 25
+    num_tasks: 35
+  - id: C7
+    num_robots: 30
+    num_tasks: 40
+  - id: C8
+    num_robots: 35
+    num_tasks: 45
+  seeds:
+    derivation_method: sha256
+    hash_function: sha256
+    seed_bytes: 4
+    byte_order: big
+    signed: false
+    seed_min: 0
+    seed_max: 4294967295
+    repetition_index_base: 0
+    message_encoding: utf-8
+    message_separator: '|'
+    messages:
+      scenario: scenario|{base_seed}|{config_id}|{repetition_index}
+      algorithm: algorithm|{scenario_seed}|{algorithm_id}
+      reward: reward|{scenario_seed}|{reward_stage_label}
+    reward_stage_label: reward_stage
+  time_limits:
+    status: provisional_requires_allocation_owner_confirmation
+    unit: seconds
+    per_algorithm:
+      MILP: 300
+      GA: 300
+      Greedy: 300
+      SVCA: 300
+  evaluation:
+    energy_penalty:
+      status: provisional_pending_team_confirmation
+      strategy: quadratic
+      lambda_E: 1.0
+    energy_feasibility:
+      report_separately: true
+    coalition_stability:
+      enabled: false
+      status: pending_formal_definition_from_game_theory_owner
+  output:
+    benchmark_results: data/results/raw/benchmark_results.csv
+    robot_rewards: data/results/raw/robot_rewards.csv
+    metadata_dir: data/results/raw/
+seed_info:
+  base_seed: 42
+  derivation:
+    derivation_method: sha256
+    hash_function: sha256
+    seed_bytes: 4
+    byte_order: big
+    signed: false
+    seed_min: 0
+    seed_max: 4294967295
+    repetition_index_base: 0
+    message_encoding: utf-8
+    message_separator: '|'
+    messages:
+      scenario: scenario|{base_seed}|{config_id}|{repetition_index}
+      algorithm: algorithm|{scenario_seed}|{algorithm_id}
+      reward: reward|{scenario_seed}|{reward_stage_label}
+    reward_stage_label: reward_stage
+time_limits:
+  status: provisional_requires_allocation_owner_confirmation
+  unit: seconds
+  per_algorithm:
+    MILP: 300
+    GA: 300
+    Greedy: 300
+    SVCA: 300
+environment:
+  python_version: 3.12.4
+  python_implementation: CPython
+  platform: Windows-11-10.0.26300-SP0
+  machine: AMD64
+  processor: Intel64 Family 6 Model 183 Stepping 1, GenuineIntel
+  cpu_count: 20
+  libraries:
+    numpy: 2.3.0
+    pandas: 2.3.0
+    PyYAML: 6.0.2
+    scipy: 1.16.1
+    PuLP: null
+  git_commit: fcc59057b54535dcef24599d3fcbce6bb1e9bb92
+  git_dirty: true
+extra:
+  harness:
+    experiment_id: sample_demo
+    backend: inprocess
+    filters:
+      only_configs: null
+      only_algorithms: null
+      repetitions: 3
+    skipped_unavailable_algorithms: {}
+    adapters:
+      MILP: sample_adapters:milp_stand_in
+      GA: sample_adapters:ga_stand_in
+      Greedy: sample_adapters:greedy_stand_in
+      SVCA: sample_adapters:svca_stand_in
+    invocations:
+    - finished_utc: '2026-11-22T08:00:20.883040+00:00'
+      mode: start
+      status: completed
+      backend: inprocess
+      filters:
+        only_configs: null
+        only_algorithms: null
+        repetitions: 3
+      algorithms_executed:
+      - GA
+      - Greedy
+      - MILP
+      - SVCA
+      adapters_used:
+        MILP: sample_adapters:milp_stand_in
+        GA: sample_adapters:ga_stand_in
+        Greedy: sample_adapters:greedy_stand_in
+        SVCA: sample_adapters:svca_stand_in
+      runs_executed: 96
+      runs_skipped_already_completed: 0
+      failed_runs: 0
+      unavailable_algorithms: {}
+    reward_stage: 'unavailable: no reward solver on the current branch; inputs/outputs
+      unconfirmed (D2/D6)'
+    evaluation_placement: after the total timer (option P1); D-H4 unresolved
+    simulator_energy_penalty_factor: 0.0
+    energy_tolerance_relative: 1.0e-09
+    evaluation_sanity_tolerance: 0.011
+    scenario_generation: 'ScenarioGenerator defaults: uniform tasks, default agent/task
+      ranges'
+    battery_model:
+      base_rate_per_meter: 1.0
+      rate_per_second_exec: 0.1
+      rate_per_second_idle: 0.01
+      payload_factor: 1.0
+      non_linear_velocity_penalty: 1.0
+updated_utc: '2026-11-22T08:00:20.887431+00:00'

@@ -1,0 +1,203 @@
+experiment_id: research_smoke_c1_r1_20261122
+created_utc: '2026-11-22T11:04:57.808881+00:00'
+config:
+  experiment:
+    id: benchmark_initial
+    description: Initial benchmark of Greedy, baseline and paper GA, and baseline
+      and paper SVCA on identical scenarios with 8 initial robot/task configurations.
+      MILP is pending its owner. configurations.
+    base_seed: 42
+  environment:
+    dimensions: 2
+    width_m: 500
+    height_m: 500
+  benchmark:
+    repetitions_per_configuration: 10
+    algorithms:
+    - Greedy
+    - GA
+    - SVCA
+    - GA_Paper
+    - SVCA_Paper
+    execution_mode: sequential
+    same_scenario_for_all_algorithms: true
+    scenario_id_format: '{config_id}_run{repetition_index:02d}'
+  configurations:
+  - id: C1
+    num_robots: 5
+    num_tasks: 5
+  - id: C2
+    num_robots: 5
+    num_tasks: 15
+  - id: C3
+    num_robots: 10
+    num_tasks: 20
+  - id: C4
+    num_robots: 15
+    num_tasks: 25
+  - id: C5
+    num_robots: 20
+    num_tasks: 30
+  - id: C6
+    num_robots: 25
+    num_tasks: 35
+  - id: C7
+    num_robots: 30
+    num_tasks: 40
+  - id: C8
+    num_robots: 35
+    num_tasks: 45
+  seeds:
+    derivation_method: sha256
+    hash_function: sha256
+    seed_bytes: 4
+    byte_order: big
+    signed: false
+    seed_min: 0
+    seed_max: 4294967295
+    repetition_index_base: 0
+    message_encoding: utf-8
+    message_separator: '|'
+    messages:
+      scenario: scenario|{base_seed}|{config_id}|{repetition_index}
+      algorithm: algorithm|{scenario_seed}|{algorithm_id}
+      reward: reward|{scenario_seed}|{reward_stage_label}
+    reward_stage_label: reward_stage
+  time_limits:
+    status: provisional_requires_allocation_owner_confirmation
+    unit: seconds
+    reward_stage_seconds: 300
+    per_algorithm:
+      MILP: 300
+      GA: 300
+      Greedy: 300
+      SVCA: 300
+      GA_Paper: 300
+      SVCA_Paper: 300
+  evaluation:
+    energy_penalty:
+      status: provisional_pending_team_confirmation
+      strategy: quadratic
+      lambda_E: 1.0
+    energy_feasibility:
+      report_separately: true
+    coalition_stability:
+      enabled: false
+      status: pending_formal_definition_from_game_theory_owner
+  reward:
+    enabled: true
+    method: glauber
+    value_type: facility
+    preference_sensitivity_alpha: 1.5
+    num_samples_Tw: 1000
+    burn_in: 200
+    thin: null
+    samples_per_stratum: 10
+    max_log_gamma: 3.0
+  output:
+    benchmark_results: data/results/raw/benchmark_results.csv
+    robot_rewards: data/results/raw/robot_rewards.csv
+    metadata_dir: data/results/raw/
+seed_info:
+  base_seed: 42
+  derivation:
+    derivation_method: sha256
+    hash_function: sha256
+    seed_bytes: 4
+    byte_order: big
+    signed: false
+    seed_min: 0
+    seed_max: 4294967295
+    repetition_index_base: 0
+    message_encoding: utf-8
+    message_separator: '|'
+    messages:
+      scenario: scenario|{base_seed}|{config_id}|{repetition_index}
+      algorithm: algorithm|{scenario_seed}|{algorithm_id}
+      reward: reward|{scenario_seed}|{reward_stage_label}
+    reward_stage_label: reward_stage
+time_limits:
+  status: provisional_requires_allocation_owner_confirmation
+  unit: seconds
+  reward_stage_seconds: 300
+  per_algorithm:
+    MILP: 300
+    GA: 300
+    Greedy: 300
+    SVCA: 300
+    GA_Paper: 300
+    SVCA_Paper: 300
+environment:
+  python_version: 3.12.4
+  python_implementation: CPython
+  platform: Windows-11-10.0.26300-SP0
+  machine: AMD64
+  processor: Intel64 Family 6 Model 183 Stepping 1, GenuineIntel
+  cpu_count: 20
+  libraries:
+    numpy: 2.3.0
+    pandas: 2.3.0
+    PyYAML: 6.0.2
+    scipy: 1.16.1
+    PuLP: null
+  git_commit: ad096801c90ddc535a863267d08e6f5a19b2bac6
+  git_dirty: true
+extra:
+  harness:
+    experiment_id: research_smoke_c1_r1_20261122
+    backend: subprocess
+    filters:
+      only_configs:
+      - C1
+      only_algorithms: null
+      repetitions: 1
+    skipped_unavailable_algorithms: {}
+    adapters:
+      Greedy: src.analytics.allocation_adapters:greedy_adapter
+      GA: src.analytics.allocation_adapters:ga_adapter
+      SVCA: src.analytics.allocation_adapters:svca_adapter
+      GA_Paper: src.analytics.allocation_adapters:ga_paper_adapter
+      SVCA_Paper: src.analytics.allocation_adapters:svca_paper_adapter
+    invocations:
+    - finished_utc: '2026-11-22T11:05:08.144195+00:00'
+      mode: start
+      status: completed
+      backend: subprocess
+      filters:
+        only_configs:
+        - C1
+        only_algorithms: null
+        repetitions: 1
+      algorithms_executed:
+      - GA
+      - GA_Paper
+      - Greedy
+      - SVCA
+      - SVCA_Paper
+      adapters_used:
+        Greedy: src.analytics.allocation_adapters:greedy_adapter
+        GA: src.analytics.allocation_adapters:ga_adapter
+        SVCA: src.analytics.allocation_adapters:svca_adapter
+        GA_Paper: src.analytics.allocation_adapters:ga_paper_adapter
+        SVCA_Paper: src.analytics.allocation_adapters:svca_paper_adapter
+      runs_executed: 5
+      runs_skipped_already_completed: 0
+      failed_runs: 0
+      unavailable_algorithms: {}
+    reward_stage: 'enabled: PreferenceAwareShapleySolver (method=glauber, value_type=facility);
+      coalition stability remains disabled'
+    reward_adapter: src.analytics.reward_adapters:preference_aware_reward_adapter
+    reward_seed_policy: shared scenario seed + configured reward_stage_label
+    evaluation_placement: after the total timer (option P1); D-H4 unresolved
+    simulator_energy_penalty_factor: 0.0
+    energy_tolerance_relative: 1.0e-09
+    evaluation_sanity_tolerance: 0.011
+    scenario_generation: 'ScenarioGenerator defaults: uniform tasks, default agent/task
+      ranges'
+    battery_model:
+      base_rate_per_meter: 1.0
+      rate_per_second_exec: 0.1
+      rate_per_second_idle: 0.01
+      payload_factor: 1.0
+      non_linear_velocity_penalty: 1.0
+updated_utc: '2026-11-22T11:05:08.153233+00:00'

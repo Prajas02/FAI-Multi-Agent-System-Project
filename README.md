@@ -84,6 +84,29 @@ pip install -e .
 python -m unittest discover tests
 ```
 
+### 3. Play a saved allocation
+
+The interactive player reads saved scenario/allocation bundles. Playback never
+runs an allocator or changes an assignment. Create a demo bundle from a saved
+scenario, then launch it:
+
+```bash
+python scripts/create_animation_bundle.py --scenario data/scenarios/toy_scenario.json --algorithms all --output tmp/animation_demo/toy_all_algorithms.json
+python scripts/play_simulation.py --bundle tmp/animation_demo/toy_all_algorithms.json
+```
+
+Use `Space` to play or pause, `R` to restart, Left/Right to select an
+algorithm, and `+`/`-` to adjust visual speed. Pass `--bundle` more than once
+to select among saved scenarios with Up/Down; for example:
+
+```bash
+python scripts/play_simulation.py --bundle tmp/animation_demo/toy_all_algorithms.json --bundle tmp/animation_demo/benchmark_C1_run00_all_algorithms.json
+```
+
+The visual movement uses the existing kinematics, task execution durations,
+and battery model. Its speed control changes only animation time and never
+changes benchmark measurements.
+
 ---
 
 ## 4b. Reward Solver (`src/game_theory/`, Goral Mashru)

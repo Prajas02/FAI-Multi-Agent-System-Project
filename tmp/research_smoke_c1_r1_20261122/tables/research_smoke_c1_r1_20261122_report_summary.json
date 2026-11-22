@@ -1,0 +1,383 @@
+{
+  "algorithms": [
+    "GA",
+    "Greedy",
+    "SVCA",
+    "GA_Paper",
+    "SVCA_Paper"
+  ],
+  "coalition_stability": "pending a formal definition from the Game Theory owner; no values exist and none are plotted",
+  "configurations": [
+    {
+      "robots": 5,
+      "tasks": 5,
+      "total_entities": 10
+    }
+  ],
+  "energy_penalty": {
+    "lambda_E": 1.0,
+    "status": "provisional: engineering assumption pending team confirmation",
+    "strategy": "quadratic"
+  },
+  "experiment_id": "research_smoke_c1_r1_20261122",
+  "figures": {
+    "allocation_cost": [
+      "tmp\\research_smoke_c1_r1_20261122\\figures\\research_smoke_c1_r1_20261122_allocation_cost.png",
+      "tmp\\research_smoke_c1_r1_20261122\\figures\\research_smoke_c1_r1_20261122_allocation_cost.pdf"
+    ],
+    "allocation_cost_distribution": [
+      "tmp\\research_smoke_c1_r1_20261122\\figures\\research_smoke_c1_r1_20261122_allocation_cost_distribution.png",
+      "tmp\\research_smoke_c1_r1_20261122\\figures\\research_smoke_c1_r1_20261122_allocation_cost_distribution.pdf"
+    ],
+    "allocation_runtime": [
+      "tmp\\research_smoke_c1_r1_20261122\\figures\\research_smoke_c1_r1_20261122_allocation_runtime.png",
+      "tmp\\research_smoke_c1_r1_20261122\\figures\\research_smoke_c1_r1_20261122_allocation_runtime.pdf"
+    ],
+    "cost_runtime_tradeoff": [
+      "tmp\\research_smoke_c1_r1_20261122\\figures\\research_smoke_c1_r1_20261122_cost_runtime_tradeoff.png",
+      "tmp\\research_smoke_c1_r1_20261122\\figures\\research_smoke_c1_r1_20261122_cost_runtime_tradeoff.pdf"
+    ],
+    "energy_feasibility": [
+      "tmp\\research_smoke_c1_r1_20261122\\figures\\research_smoke_c1_r1_20261122_energy_feasibility.png",
+      "tmp\\research_smoke_c1_r1_20261122\\figures\\research_smoke_c1_r1_20261122_energy_feasibility.pdf"
+    ],
+    "energy_feasibility_heatmap": [
+      "tmp\\research_smoke_c1_r1_20261122\\figures\\research_smoke_c1_r1_20261122_energy_feasibility_heatmap.png",
+      "tmp\\research_smoke_c1_r1_20261122\\figures\\research_smoke_c1_r1_20261122_energy_feasibility_heatmap.pdf"
+    ],
+    "gini": [
+      "tmp\\research_smoke_c1_r1_20261122\\figures\\research_smoke_c1_r1_20261122_reward_fairness_gini.png",
+      "tmp\\research_smoke_c1_r1_20261122\\figures\\research_smoke_c1_r1_20261122_reward_fairness_gini.pdf"
+    ],
+    "gini_distributions": [
+      "tmp\\research_smoke_c1_r1_20261122\\figures\\research_smoke_c1_r1_20261122_gini_distributions.png",
+      "tmp\\research_smoke_c1_r1_20261122\\figures\\research_smoke_c1_r1_20261122_gini_distributions.pdf"
+    ],
+    "lorenz_curve": [
+      "tmp\\research_smoke_c1_r1_20261122\\figures\\research_smoke_c1_r1_20261122_lorenz_curve.png",
+      "tmp\\research_smoke_c1_r1_20261122\\figures\\research_smoke_c1_r1_20261122_lorenz_curve.pdf"
+    ],
+    "paired_cost_comparison": [
+      "tmp\\research_smoke_c1_r1_20261122\\figures\\research_smoke_c1_r1_20261122_paired_cost_comparison.png",
+      "tmp\\research_smoke_c1_r1_20261122\\figures\\research_smoke_c1_r1_20261122_paired_cost_comparison.pdf"
+    ],
+    "problem_sizes": [
+      "tmp\\research_smoke_c1_r1_20261122\\figures\\research_smoke_c1_r1_20261122_problem_sizes.png",
+      "tmp\\research_smoke_c1_r1_20261122\\figures\\research_smoke_c1_r1_20261122_problem_sizes.pdf"
+    ],
+    "reward_runtime": [
+      "tmp\\research_smoke_c1_r1_20261122\\figures\\research_smoke_c1_r1_20261122_reward_runtime.png",
+      "tmp\\research_smoke_c1_r1_20261122\\figures\\research_smoke_c1_r1_20261122_reward_runtime.pdf"
+    ],
+    "run_reliability": [
+      "tmp\\research_smoke_c1_r1_20261122\\figures\\research_smoke_c1_r1_20261122_run_reliability.png",
+      "tmp\\research_smoke_c1_r1_20261122\\figures\\research_smoke_c1_r1_20261122_run_reliability.pdf"
+    ],
+    "total_runtime": [
+      "tmp\\research_smoke_c1_r1_20261122\\figures\\research_smoke_c1_r1_20261122_total_runtime.png",
+      "tmp\\research_smoke_c1_r1_20261122\\figures\\research_smoke_c1_r1_20261122_total_runtime.pdf"
+    ]
+  },
+  "metrics": {
+    "allocation_cost": {
+      "available": true,
+      "detail": "5 of 5 algorithm/configuration cells have data",
+      "figures": [
+        "tmp\\research_smoke_c1_r1_20261122\\figures\\research_smoke_c1_r1_20261122_allocation_cost.png",
+        "tmp\\research_smoke_c1_r1_20261122\\figures\\research_smoke_c1_r1_20261122_allocation_cost.pdf"
+      ],
+      "tables": [
+        "tmp\\research_smoke_c1_r1_20261122\\tables\\research_smoke_c1_r1_20261122_table_allocation_cost.csv",
+        "tmp\\research_smoke_c1_r1_20261122\\tables\\research_smoke_c1_r1_20261122_table_allocation_cost.tex",
+        "tmp\\research_smoke_c1_r1_20261122\\tables\\research_smoke_c1_r1_20261122_table_allocation_cost.md"
+      ]
+    },
+    "allocation_runtime": {
+      "available": true,
+      "detail": "5 of 5 algorithm/configuration cells have data",
+      "figures": [
+        "tmp\\research_smoke_c1_r1_20261122\\figures\\research_smoke_c1_r1_20261122_allocation_runtime.png",
+        "tmp\\research_smoke_c1_r1_20261122\\figures\\research_smoke_c1_r1_20261122_allocation_runtime.pdf"
+      ],
+      "tables": [
+        "tmp\\research_smoke_c1_r1_20261122\\tables\\research_smoke_c1_r1_20261122_table_allocation_runtime.csv",
+        "tmp\\research_smoke_c1_r1_20261122\\tables\\research_smoke_c1_r1_20261122_table_allocation_runtime.tex",
+        "tmp\\research_smoke_c1_r1_20261122\\tables\\research_smoke_c1_r1_20261122_table_allocation_runtime.md"
+      ]
+    },
+    "energy_feasibility": {
+      "available": true,
+      "detail": "5 of 5 algorithm/configuration cells have data",
+      "figures": [
+        "tmp\\research_smoke_c1_r1_20261122\\figures\\research_smoke_c1_r1_20261122_energy_feasibility.png",
+        "tmp\\research_smoke_c1_r1_20261122\\figures\\research_smoke_c1_r1_20261122_energy_feasibility.pdf"
+      ],
+      "tables": [
+        "tmp\\research_smoke_c1_r1_20261122\\tables\\research_smoke_c1_r1_20261122_table_energy_feasibility.csv",
+        "tmp\\research_smoke_c1_r1_20261122\\tables\\research_smoke_c1_r1_20261122_table_energy_feasibility.tex",
+        "tmp\\research_smoke_c1_r1_20261122\\tables\\research_smoke_c1_r1_20261122_table_energy_feasibility.md"
+      ]
+    },
+    "gini": {
+      "available": true,
+      "detail": "5 of 5 algorithm/configuration cells have data",
+      "figures": [
+        "tmp\\research_smoke_c1_r1_20261122\\figures\\research_smoke_c1_r1_20261122_reward_fairness_gini.png",
+        "tmp\\research_smoke_c1_r1_20261122\\figures\\research_smoke_c1_r1_20261122_reward_fairness_gini.pdf"
+      ],
+      "tables": [
+        "tmp\\research_smoke_c1_r1_20261122\\tables\\research_smoke_c1_r1_20261122_table_gini.csv",
+        "tmp\\research_smoke_c1_r1_20261122\\tables\\research_smoke_c1_r1_20261122_table_gini.tex",
+        "tmp\\research_smoke_c1_r1_20261122\\tables\\research_smoke_c1_r1_20261122_table_gini.md"
+      ]
+    },
+    "reward_runtime": {
+      "available": true,
+      "detail": "5 of 5 algorithm/configuration cells have data",
+      "figures": [
+        "tmp\\research_smoke_c1_r1_20261122\\figures\\research_smoke_c1_r1_20261122_reward_runtime.png",
+        "tmp\\research_smoke_c1_r1_20261122\\figures\\research_smoke_c1_r1_20261122_reward_runtime.pdf"
+      ],
+      "tables": [
+        "tmp\\research_smoke_c1_r1_20261122\\tables\\research_smoke_c1_r1_20261122_table_reward_runtime.csv",
+        "tmp\\research_smoke_c1_r1_20261122\\tables\\research_smoke_c1_r1_20261122_table_reward_runtime.tex",
+        "tmp\\research_smoke_c1_r1_20261122\\tables\\research_smoke_c1_r1_20261122_table_reward_runtime.md"
+      ]
+    },
+    "total_runtime": {
+      "available": true,
+      "detail": "5 of 5 algorithm/configuration cells have data",
+      "figures": [
+        "tmp\\research_smoke_c1_r1_20261122\\figures\\research_smoke_c1_r1_20261122_total_runtime.png",
+        "tmp\\research_smoke_c1_r1_20261122\\figures\\research_smoke_c1_r1_20261122_total_runtime.pdf"
+      ],
+      "tables": [
+        "tmp\\research_smoke_c1_r1_20261122\\tables\\research_smoke_c1_r1_20261122_table_total_runtime.csv",
+        "tmp\\research_smoke_c1_r1_20261122\\tables\\research_smoke_c1_r1_20261122_table_total_runtime.tex",
+        "tmp\\research_smoke_c1_r1_20261122\\tables\\research_smoke_c1_r1_20261122_table_total_runtime.md"
+      ]
+    }
+  },
+  "notes": [
+    "These assets describe measured values only; they make no claim about which algorithm is better.",
+    "Means and standard deviations use only the runs eligible for each metric (valid counts are in the tables); failed runs and stages that did not complete are excluded; missing values are never treated as zero.",
+    "Allocation cost includes the PROVISIONAL energy penalty (quadratic, lambda_E=1.0): an unconfirmed engineering assumption, not a formally established part of the method."
+  ],
+  "reward_fairness_analysis": "available",
+  "runs_per_algorithm": {
+    "GA": {
+      "failed_runs": 0,
+      "runs": 1,
+      "successful_runs": 1
+    },
+    "GA_Paper": {
+      "failed_runs": 0,
+      "runs": 1,
+      "successful_runs": 1
+    },
+    "Greedy": {
+      "failed_runs": 0,
+      "runs": 1,
+      "successful_runs": 1
+    },
+    "SVCA": {
+      "failed_runs": 0,
+      "runs": 1,
+      "successful_runs": 1
+    },
+    "SVCA_Paper": {
+      "failed_runs": 0,
+      "runs": 1,
+      "successful_runs": 1
+    }
+  },
+  "source": {
+    "incomplete_reward_groups": 0,
+    "orphan_reward_record_groups": 0,
+    "records": 5,
+    "results_file": "tmp\\research_smoke_c1_r1_20261122\\raw\\benchmark_results.csv",
+    "reward_file_present": true,
+    "reward_groups_fewer_than_robots": 0,
+    "reward_groups_more_than_robots": 0,
+    "reward_records_on_ineligible_runs": 0,
+    "reward_stage_completed_without_reward_records": 0,
+    "runs_with_reward_records": 5,
+    "stored_gini_mismatching_records": 0,
+    "stored_gini_without_reward_records": 0
+  },
+  "tables": {
+    "allocation_cost": [
+      "tmp\\research_smoke_c1_r1_20261122\\tables\\research_smoke_c1_r1_20261122_table_allocation_cost.csv",
+      "tmp\\research_smoke_c1_r1_20261122\\tables\\research_smoke_c1_r1_20261122_table_allocation_cost.tex",
+      "tmp\\research_smoke_c1_r1_20261122\\tables\\research_smoke_c1_r1_20261122_table_allocation_cost.md"
+    ],
+    "allocation_cost_distribution": [
+      "tmp\\research_smoke_c1_r1_20261122\\tables\\research_smoke_c1_r1_20261122_table_allocation_cost_distribution.csv",
+      "tmp\\research_smoke_c1_r1_20261122\\tables\\research_smoke_c1_r1_20261122_table_allocation_cost_distribution.tex",
+      "tmp\\research_smoke_c1_r1_20261122\\tables\\research_smoke_c1_r1_20261122_table_allocation_cost_distribution.md"
+    ],
+    "allocation_runtime": [
+      "tmp\\research_smoke_c1_r1_20261122\\tables\\research_smoke_c1_r1_20261122_table_allocation_runtime.csv",
+      "tmp\\research_smoke_c1_r1_20261122\\tables\\research_smoke_c1_r1_20261122_table_allocation_runtime.tex",
+      "tmp\\research_smoke_c1_r1_20261122\\tables\\research_smoke_c1_r1_20261122_table_allocation_runtime.md"
+    ],
+    "energy_feasibility": [
+      "tmp\\research_smoke_c1_r1_20261122\\tables\\research_smoke_c1_r1_20261122_table_energy_feasibility.csv",
+      "tmp\\research_smoke_c1_r1_20261122\\tables\\research_smoke_c1_r1_20261122_table_energy_feasibility.tex",
+      "tmp\\research_smoke_c1_r1_20261122\\tables\\research_smoke_c1_r1_20261122_table_energy_feasibility.md"
+    ],
+    "gini": [
+      "tmp\\research_smoke_c1_r1_20261122\\tables\\research_smoke_c1_r1_20261122_table_gini.csv",
+      "tmp\\research_smoke_c1_r1_20261122\\tables\\research_smoke_c1_r1_20261122_table_gini.tex",
+      "tmp\\research_smoke_c1_r1_20261122\\tables\\research_smoke_c1_r1_20261122_table_gini.md"
+    ],
+    "gini_distribution": [
+      "tmp\\research_smoke_c1_r1_20261122\\tables\\research_smoke_c1_r1_20261122_table_gini_distribution.csv",
+      "tmp\\research_smoke_c1_r1_20261122\\tables\\research_smoke_c1_r1_20261122_table_gini_distribution.tex",
+      "tmp\\research_smoke_c1_r1_20261122\\tables\\research_smoke_c1_r1_20261122_table_gini_distribution.md"
+    ],
+    "paired_cost_comparison": [
+      "tmp\\research_smoke_c1_r1_20261122\\tables\\research_smoke_c1_r1_20261122_table_paired_cost_comparison.csv",
+      "tmp\\research_smoke_c1_r1_20261122\\tables\\research_smoke_c1_r1_20261122_table_paired_cost_comparison.tex",
+      "tmp\\research_smoke_c1_r1_20261122\\tables\\research_smoke_c1_r1_20261122_table_paired_cost_comparison.md"
+    ],
+    "reliability": [
+      "tmp\\research_smoke_c1_r1_20261122\\tables\\research_smoke_c1_r1_20261122_table_reliability.csv",
+      "tmp\\research_smoke_c1_r1_20261122\\tables\\research_smoke_c1_r1_20261122_table_reliability.tex",
+      "tmp\\research_smoke_c1_r1_20261122\\tables\\research_smoke_c1_r1_20261122_table_reliability.md"
+    ],
+    "reward_runtime": [
+      "tmp\\research_smoke_c1_r1_20261122\\tables\\research_smoke_c1_r1_20261122_table_reward_runtime.csv",
+      "tmp\\research_smoke_c1_r1_20261122\\tables\\research_smoke_c1_r1_20261122_table_reward_runtime.tex",
+      "tmp\\research_smoke_c1_r1_20261122\\tables\\research_smoke_c1_r1_20261122_table_reward_runtime.md"
+    ],
+    "run_outcomes": [
+      "tmp\\research_smoke_c1_r1_20261122\\tables\\research_smoke_c1_r1_20261122_table_run_outcomes.csv",
+      "tmp\\research_smoke_c1_r1_20261122\\tables\\research_smoke_c1_r1_20261122_table_run_outcomes.tex",
+      "tmp\\research_smoke_c1_r1_20261122\\tables\\research_smoke_c1_r1_20261122_table_run_outcomes.md"
+    ],
+    "summary": [
+      "tmp\\research_smoke_c1_r1_20261122\\tables\\summary_research_smoke_c1_r1_20261122.csv"
+    ],
+    "total_runtime": [
+      "tmp\\research_smoke_c1_r1_20261122\\tables\\research_smoke_c1_r1_20261122_table_total_runtime.csv",
+      "tmp\\research_smoke_c1_r1_20261122\\tables\\research_smoke_c1_r1_20261122_table_total_runtime.tex",
+      "tmp\\research_smoke_c1_r1_20261122\\tables\\research_smoke_c1_r1_20261122_table_total_runtime.md"
+    ]
+  },
+  "unavailable_metrics": [],
+  "unavailable_visualizations": {
+    "route_allocation": "benchmark schemas persist no robot start positions, task locations, assignments, or route sequences"
+  },
+  "visualizations": {
+    "allocation_cost_distribution": {
+      "available": true,
+      "figures": [
+        "tmp\\research_smoke_c1_r1_20261122\\figures\\research_smoke_c1_r1_20261122_allocation_cost_distribution.png",
+        "tmp\\research_smoke_c1_r1_20261122\\figures\\research_smoke_c1_r1_20261122_allocation_cost_distribution.pdf"
+      ]
+    },
+    "cost_runtime_tradeoff": {
+      "available": true,
+      "eligibility_counts": [
+        {
+          "algorithm": "GA",
+          "cost_runs": 1,
+          "robots": 5,
+          "runtime_runs": 1,
+          "same_count": true,
+          "tasks": 5
+        },
+        {
+          "algorithm": "GA_Paper",
+          "cost_runs": 1,
+          "robots": 5,
+          "runtime_runs": 1,
+          "same_count": true,
+          "tasks": 5
+        },
+        {
+          "algorithm": "Greedy",
+          "cost_runs": 1,
+          "robots": 5,
+          "runtime_runs": 1,
+          "same_count": true,
+          "tasks": 5
+        },
+        {
+          "algorithm": "SVCA",
+          "cost_runs": 1,
+          "robots": 5,
+          "runtime_runs": 1,
+          "same_count": true,
+          "tasks": 5
+        },
+        {
+          "algorithm": "SVCA_Paper",
+          "cost_runs": 1,
+          "robots": 5,
+          "runtime_runs": 1,
+          "same_count": true,
+          "tasks": 5
+        }
+      ],
+      "figures": [
+        "tmp\\research_smoke_c1_r1_20261122\\figures\\research_smoke_c1_r1_20261122_cost_runtime_tradeoff.png",
+        "tmp\\research_smoke_c1_r1_20261122\\figures\\research_smoke_c1_r1_20261122_cost_runtime_tradeoff.pdf"
+      ]
+    },
+    "energy_feasibility_heatmap": {
+      "available": true,
+      "figures": [
+        "tmp\\research_smoke_c1_r1_20261122\\figures\\research_smoke_c1_r1_20261122_energy_feasibility_heatmap.png",
+        "tmp\\research_smoke_c1_r1_20261122\\figures\\research_smoke_c1_r1_20261122_energy_feasibility_heatmap.pdf"
+      ]
+    },
+    "gini_distributions": {
+      "available": true,
+      "figures": [
+        "tmp\\research_smoke_c1_r1_20261122\\figures\\research_smoke_c1_r1_20261122_gini_distributions.png",
+        "tmp\\research_smoke_c1_r1_20261122\\figures\\research_smoke_c1_r1_20261122_gini_distributions.pdf"
+      ]
+    },
+    "lorenz_curve": {
+      "available": true,
+      "figures": [
+        "tmp\\research_smoke_c1_r1_20261122\\figures\\research_smoke_c1_r1_20261122_lorenz_curve.png",
+        "tmp\\research_smoke_c1_r1_20261122\\figures\\research_smoke_c1_r1_20261122_lorenz_curve.pdf"
+      ],
+      "run": [
+        "research_smoke_c1_r1_20261122",
+        "C1_run00",
+        "GA"
+      ]
+    },
+    "paired_cost_comparison": {
+      "available": true,
+      "figures": [
+        "tmp\\research_smoke_c1_r1_20261122\\figures\\research_smoke_c1_r1_20261122_paired_cost_comparison.png",
+        "tmp\\research_smoke_c1_r1_20261122\\figures\\research_smoke_c1_r1_20261122_paired_cost_comparison.pdf"
+      ]
+    },
+    "reliability_categories": {
+      "available": true,
+      "categories": [
+        "successful",
+        "failed"
+      ],
+      "reason": "failure category is not a structured schema field; error strings are not classified heuristically"
+    },
+    "route_allocation": {
+      "available": false,
+      "reason": "benchmark schemas persist no robot start positions, task locations, assignments, or route sequences"
+    },
+    "run_reliability": {
+      "available": true,
+      "figures": [
+        "tmp\\research_smoke_c1_r1_20261122\\figures\\research_smoke_c1_r1_20261122_run_reliability.png",
+        "tmp\\research_smoke_c1_r1_20261122\\figures\\research_smoke_c1_r1_20261122_run_reliability.pdf"
+      ]
+    }
+  },
+  "warnings": []
+}

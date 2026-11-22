@@ -1,0 +1,213 @@
+# =============================================================================
+# Benchmark experiment configuration
+# Approved design: docs/ANALYTICS_BENCHMARKING_PLAN.md
+#
+# This file only DESCRIBES the experiment. The benchmarking harness (a later
+# task) reads it. Every value below is a configuration choice, not a result.
+# Plain ASCII only, so it loads on any platform with PyYAML (safe_load).
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# 1. Experiment
+# -----------------------------------------------------------------------------
+experiment:
+  # Safe identifier: letters, digits, '.', '_' and '-' only (1-128 characters).
+  # It names the metadata file (metadata_<experiment_id>.yaml) and is stored in
+  # the experiment_id column of the result CSVs. Change it for every new
+  # campaign; a CSV key (experiment_id, scenario_id, algorithm) can only be
+  # written once.
+  id: benchmark_initial
+  description: >-
+    Initial benchmark of Greedy, baseline and paper GA, and baseline and paper SVCA on identical
+    scenarios with 8 initial robot/task configurations. MILP is pending its owner.
+    configurations.
+  # Fixed, configurable base seed. All other seeds are derived from it
+  # (see "seeds" below).
+  base_seed: 42
+  # The experiment metadata file will record a copy of this configuration
+  # together with environment details (Python/library versions, git commit and
+  # dirty flag, machine information), so every reported number can be traced
+  # back to the exact settings that produced it.
+
+# -----------------------------------------------------------------------------
+# 2. Environment
+# -----------------------------------------------------------------------------
+environment:
+  dimensions: 2
+  width_m: 500
+  height_m: 500
+
+# -----------------------------------------------------------------------------
+# 3. Benchmark
+# -----------------------------------------------------------------------------
+benchmark:
+  repetitions_per_configuration: 10
+  # Active implementations only. MILP remains reserved in time_limits below,
+  # but is excluded from execution until its owner supplies the implementation.
+  algorithms:
+    - Greedy
+    - GA
+    - SVCA
+    - GA_Paper
+    - SVCA_Paper
+  execution_mode: sequential   # one run at a time, so timings do not compete
+  # For a given (configuration, repetition) ONE scenario is generated and every
+  # algorithm receives that same scenario (same robots, tasks, constraints).
+  same_scenario_for_all_algorithms: true
+  # Format of the scenario_id stored in the result CSVs. Repetition indices are
+  # zero-based (0 .. repetitions_per_configuration - 1), for example C1_run00.
+  # The same scenario ID is shared by all algorithms evaluated on that scenario.
+  scenario_id_format: "{config_id}_run{repetition_index:02d}"
+
+# -----------------------------------------------------------------------------
+# 4. Configurations
+# -----------------------------------------------------------------------------
+# INITIAL, ADJUSTABLE configurations. They are a starting point and may change
+# once the simulation and allocation modules exist (for example if MILP cannot
+# finish at the larger sizes). Both the number of robots AND the number of
+# tasks vary across configurations.
+#
+# Only robot and task counts are stored. The total number of entities is NOT
+# stored here: the harness must calculate N = num_robots + num_tasks, which
+# must stay within [10, 80].
+configurations:
+  - id: C1
+    num_robots: 5
+    num_tasks: 5
+  - id: C2
+    num_robots: 5
+    num_tasks: 15
+  - id: C3
+    num_robots: 10
+    num_tasks: 20
+  - id: C4
+    num_robots: 15
+    num_tasks: 25
+  - id: C5
+    num_robots: 20
+    num_tasks: 30
+  - id: C6
+    num_robots: 25
+    num_tasks: 35
+  - id: C7
+    num_robots: 30
+    num_tasks: 40
+  - id: C8
+    num_robots: 35
+    num_tasks: 45
+
+# -----------------------------------------------------------------------------
+# 5. Seed derivation (specification only; no code here)
+# -----------------------------------------------------------------------------
+# All seeds are derived deterministically from base_seed with SHA-256. Python's
+# built-in hash() must NOT be used (it is randomized per process).
+#
+# Derivation of one seed:
+#   1. Build the message string below (UTF-8), with integers written in plain
+#      decimal (no padding, no separators) and fields joined by '|'.
+#   2. digest = SHA-256(message)
+#   3. seed   = first 4 bytes of the digest as an unsigned big-endian integer.
+#      Seed range: 0 .. 4294967295 (2**32 - 1), usable by numpy and random.
+#
+# Messages (repetition_index is 0-based: 0 .. repetitions_per_configuration-1):
+#   scenario seed : "scenario|<base_seed>|<config_id>|<repetition_index>"
+#   algorithm seed: "algorithm|<scenario_seed>|<algorithm_id>"
+#   reward seed   : "reward|<scenario_seed>|<reward_stage_label>"
+#
+# Consequences:
+#   * The scenario seed depends only on base seed, configuration and repetition.
+#     It is SHARED by all algorithms for the same scenario, so all algorithms
+#     receive the identical scenario. It is stored in the random_seed column.
+#   * Each algorithm gets its own separate, reproducible seed derived from the
+#     scenario seed and its identifier (used by stochastic solvers such as GA
+#     and SVCA's permutation sampling).
+#   * The reward seed depends only on the scenario seed and the fixed label, so
+#     the reward stage uses the same seed for every algorithm on a scenario.
+seeds:
+  derivation_method: sha256
+  hash_function: sha256
+  seed_bytes: 4
+  byte_order: big
+  signed: false
+  seed_min: 0
+  seed_max: 4294967295
+  repetition_index_base: 0
+  message_encoding: utf-8
+  message_separator: "|"
+  messages:
+    scenario: "scenario|{base_seed}|{config_id}|{repetition_index}"
+    algorithm: "algorithm|{scenario_seed}|{algorithm_id}"
+    reward: "reward|{scenario_seed}|{reward_stage_label}"
+  reward_stage_label: reward_stage
+
+# -----------------------------------------------------------------------------
+# 6. Time limits (seconds, per algorithm run)
+# -----------------------------------------------------------------------------
+# PROVISIONAL: every value below is a conservative placeholder. None of them
+# is based on measured solver performance. All must be confirmed or replaced by
+# the Allocation owner (design document, dependency D1).
+#
+# OPEN POLICY: what happens when a solver hits the limit but returns an
+# incumbent (best-so-far) solution must be agreed with the Allocation owner.
+# Until then this file does not define it.
+time_limits:
+  status: provisional_requires_allocation_owner_confirmation
+  unit: seconds
+  reward_stage_seconds: 300
+  per_algorithm:
+    # Reserved for the MILP owner; not active in benchmark.algorithms yet.
+    MILP: 300
+    GA: 300
+    Greedy: 300
+    SVCA: 300
+    GA_Paper: 300
+    SVCA_Paper: 300
+
+# -----------------------------------------------------------------------------
+# 7. Evaluation
+# -----------------------------------------------------------------------------
+evaluation:
+  energy_penalty:
+    # ENGINEERING ASSUMPTION, not a formula from the project proposal. The
+    # proposal leaves phi(U) undefined. The strategy and the coefficient are
+    # PROVISIONAL and pending team confirmation (design document, section 2.2
+    # and dependency D4).
+    status: provisional_pending_team_confirmation
+    # Options: quadratic | linear | zero
+    #   quadratic: phi(U) = lambda_E * sum_r max(0, -E_r(U))^2
+    strategy: quadratic
+    lambda_E: 1.0   # provisional default, must be confirmed
+  # Energy feasibility (E_r(U) >= 0 for every robot) is always reported as its
+  # own metric, separate from the cost.
+  energy_feasibility:
+    report_separately: true
+  coalition_stability:
+    # Disabled/unavailable until the Game Theory owner provides a formal
+    # definition. No definition or formula is introduced here; the result
+    # column stays empty (missing) for every run.
+    enabled: false
+    status: pending_formal_definition_from_game_theory_owner
+
+# -----------------------------------------------------------------------------
+# 8. Reward fairness stage
+# -----------------------------------------------------------------------------
+reward:
+  enabled: true
+  method: glauber
+  value_type: facility
+  preference_sensitivity_alpha: 1.5
+  num_samples_Tw: 1000
+  burn_in: 200
+  thin: null
+  samples_per_stratum: 10
+  max_log_gamma: 3.0
+
+# -----------------------------------------------------------------------------
+# 9. Output paths (relative to the repository root)
+# -----------------------------------------------------------------------------
+# Experiment metadata (configuration copy and environment details) is written
+# to <metadata_dir>/metadata_<experiment id>.yaml.
+output:
+  benchmark_results: data/results/raw/benchmark_results.csv
+  robot_rewards: data/results/raw/robot_rewards.csv
+  metadata_dir: data/results/raw/

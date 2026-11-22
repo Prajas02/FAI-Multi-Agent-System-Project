@@ -1,0 +1,200 @@
+{
+  "algorithms": [
+    "MILP",
+    "GA",
+    "Greedy",
+    "SVCA"
+  ],
+  "coalition_stability": "pending a formal definition from the Game Theory owner; no values exist and none are plotted",
+  "configurations": [
+    {
+      "robots": 5,
+      "tasks": 5,
+      "total_entities": 10
+    },
+    {
+      "robots": 5,
+      "tasks": 15,
+      "total_entities": 20
+    },
+    {
+      "robots": 10,
+      "tasks": 20,
+      "total_entities": 30
+    },
+    {
+      "robots": 15,
+      "tasks": 25,
+      "total_entities": 40
+    },
+    {
+      "robots": 20,
+      "tasks": 30,
+      "total_entities": 50
+    },
+    {
+      "robots": 25,
+      "tasks": 35,
+      "total_entities": 60
+    },
+    {
+      "robots": 30,
+      "tasks": 40,
+      "total_entities": 70
+    },
+    {
+      "robots": 35,
+      "tasks": 45,
+      "total_entities": 80
+    }
+  ],
+  "energy_penalty": {
+    "lambda_E": 1.0,
+    "status": "provisional: engineering assumption pending team confirmation",
+    "strategy": "quadratic"
+  },
+  "experiment_id": "sample_demo",
+  "figures": {
+    "allocation_cost": [
+      "C:\\Users\\yashy\\AppData\\Local\\Temp\\claude\\476fb9e0dc8742fc\\2fd81a30-6bb8-4444-9580-842769ec7155\\scratchpad\\sample_demo\\figures\\sample_demo_allocation_cost.png",
+      "C:\\Users\\yashy\\AppData\\Local\\Temp\\claude\\476fb9e0dc8742fc\\2fd81a30-6bb8-4444-9580-842769ec7155\\scratchpad\\sample_demo\\figures\\sample_demo_allocation_cost.pdf"
+    ],
+    "allocation_runtime": [
+      "C:\\Users\\yashy\\AppData\\Local\\Temp\\claude\\476fb9e0dc8742fc\\2fd81a30-6bb8-4444-9580-842769ec7155\\scratchpad\\sample_demo\\figures\\sample_demo_allocation_runtime.png",
+      "C:\\Users\\yashy\\AppData\\Local\\Temp\\claude\\476fb9e0dc8742fc\\2fd81a30-6bb8-4444-9580-842769ec7155\\scratchpad\\sample_demo\\figures\\sample_demo_allocation_runtime.pdf"
+    ],
+    "energy_feasibility": [
+      "C:\\Users\\yashy\\AppData\\Local\\Temp\\claude\\476fb9e0dc8742fc\\2fd81a30-6bb8-4444-9580-842769ec7155\\scratchpad\\sample_demo\\figures\\sample_demo_energy_feasibility.png",
+      "C:\\Users\\yashy\\AppData\\Local\\Temp\\claude\\476fb9e0dc8742fc\\2fd81a30-6bb8-4444-9580-842769ec7155\\scratchpad\\sample_demo\\figures\\sample_demo_energy_feasibility.pdf"
+    ],
+    "problem_sizes": [
+      "C:\\Users\\yashy\\AppData\\Local\\Temp\\claude\\476fb9e0dc8742fc\\2fd81a30-6bb8-4444-9580-842769ec7155\\scratchpad\\sample_demo\\figures\\sample_demo_problem_sizes.png",
+      "C:\\Users\\yashy\\AppData\\Local\\Temp\\claude\\476fb9e0dc8742fc\\2fd81a30-6bb8-4444-9580-842769ec7155\\scratchpad\\sample_demo\\figures\\sample_demo_problem_sizes.pdf"
+    ]
+  },
+  "metrics": {
+    "allocation_cost": {
+      "available": true,
+      "detail": "32 of 32 algorithm/configuration cells have data",
+      "figures": [
+        "C:\\Users\\yashy\\AppData\\Local\\Temp\\claude\\476fb9e0dc8742fc\\2fd81a30-6bb8-4444-9580-842769ec7155\\scratchpad\\sample_demo\\figures\\sample_demo_allocation_cost.png",
+        "C:\\Users\\yashy\\AppData\\Local\\Temp\\claude\\476fb9e0dc8742fc\\2fd81a30-6bb8-4444-9580-842769ec7155\\scratchpad\\sample_demo\\figures\\sample_demo_allocation_cost.pdf"
+      ],
+      "tables": [
+        "C:\\Users\\yashy\\AppData\\Local\\Temp\\claude\\476fb9e0dc8742fc\\2fd81a30-6bb8-4444-9580-842769ec7155\\scratchpad\\sample_demo\\tables\\sample_demo_table_allocation_cost.csv",
+        "C:\\Users\\yashy\\AppData\\Local\\Temp\\claude\\476fb9e0dc8742fc\\2fd81a30-6bb8-4444-9580-842769ec7155\\scratchpad\\sample_demo\\tables\\sample_demo_table_allocation_cost.tex",
+        "C:\\Users\\yashy\\AppData\\Local\\Temp\\claude\\476fb9e0dc8742fc\\2fd81a30-6bb8-4444-9580-842769ec7155\\scratchpad\\sample_demo\\tables\\sample_demo_table_allocation_cost.md"
+      ]
+    },
+    "allocation_runtime": {
+      "available": true,
+      "detail": "32 of 32 algorithm/configuration cells have data",
+      "figures": [
+        "C:\\Users\\yashy\\AppData\\Local\\Temp\\claude\\476fb9e0dc8742fc\\2fd81a30-6bb8-4444-9580-842769ec7155\\scratchpad\\sample_demo\\figures\\sample_demo_allocation_runtime.png",
+        "C:\\Users\\yashy\\AppData\\Local\\Temp\\claude\\476fb9e0dc8742fc\\2fd81a30-6bb8-4444-9580-842769ec7155\\scratchpad\\sample_demo\\figures\\sample_demo_allocation_runtime.pdf"
+      ],
+      "tables": [
+        "C:\\Users\\yashy\\AppData\\Local\\Temp\\claude\\476fb9e0dc8742fc\\2fd81a30-6bb8-4444-9580-842769ec7155\\scratchpad\\sample_demo\\tables\\sample_demo_table_allocation_runtime.csv",
+        "C:\\Users\\yashy\\AppData\\Local\\Temp\\claude\\476fb9e0dc8742fc\\2fd81a30-6bb8-4444-9580-842769ec7155\\scratchpad\\sample_demo\\tables\\sample_demo_table_allocation_runtime.tex",
+        "C:\\Users\\yashy\\AppData\\Local\\Temp\\claude\\476fb9e0dc8742fc\\2fd81a30-6bb8-4444-9580-842769ec7155\\scratchpad\\sample_demo\\tables\\sample_demo_table_allocation_runtime.md"
+      ]
+    },
+    "energy_feasibility": {
+      "available": true,
+      "detail": "32 of 32 algorithm/configuration cells have data",
+      "figures": [
+        "C:\\Users\\yashy\\AppData\\Local\\Temp\\claude\\476fb9e0dc8742fc\\2fd81a30-6bb8-4444-9580-842769ec7155\\scratchpad\\sample_demo\\figures\\sample_demo_energy_feasibility.png",
+        "C:\\Users\\yashy\\AppData\\Local\\Temp\\claude\\476fb9e0dc8742fc\\2fd81a30-6bb8-4444-9580-842769ec7155\\scratchpad\\sample_demo\\figures\\sample_demo_energy_feasibility.pdf"
+      ],
+      "tables": [
+        "C:\\Users\\yashy\\AppData\\Local\\Temp\\claude\\476fb9e0dc8742fc\\2fd81a30-6bb8-4444-9580-842769ec7155\\scratchpad\\sample_demo\\tables\\sample_demo_table_energy_feasibility.csv",
+        "C:\\Users\\yashy\\AppData\\Local\\Temp\\claude\\476fb9e0dc8742fc\\2fd81a30-6bb8-4444-9580-842769ec7155\\scratchpad\\sample_demo\\tables\\sample_demo_table_energy_feasibility.tex",
+        "C:\\Users\\yashy\\AppData\\Local\\Temp\\claude\\476fb9e0dc8742fc\\2fd81a30-6bb8-4444-9580-842769ec7155\\scratchpad\\sample_demo\\tables\\sample_demo_table_energy_feasibility.md"
+      ]
+    },
+    "gini": {
+      "available": false,
+      "reason": "pending reward-solver integration: no run has completed the reward stage"
+    },
+    "reward_runtime": {
+      "available": false,
+      "reason": "pending reward-solver integration: no run has completed the reward stage"
+    },
+    "total_runtime": {
+      "available": false,
+      "reason": "pending reward-solver integration: no run has completed the reward stage; total runtime needs both stages completed"
+    }
+  },
+  "notes": [
+    "These assets describe measured values only; they make no claim about which algorithm is better.",
+    "Means and standard deviations use only the runs eligible for each metric (valid counts are in the tables); failed runs and stages that did not complete are excluded; missing values are never treated as zero.",
+    "Allocation cost includes the PROVISIONAL energy penalty (quadratic, lambda_E=1.0): an unconfirmed engineering assumption, not a formally established part of the method."
+  ],
+  "reward_fairness_analysis": "pending reward-solver integration: no run has completed the reward stage",
+  "runs_per_algorithm": {
+    "GA": {
+      "failed_runs": 0,
+      "runs": 24,
+      "successful_runs": 24
+    },
+    "Greedy": {
+      "failed_runs": 0,
+      "runs": 24,
+      "successful_runs": 24
+    },
+    "MILP": {
+      "failed_runs": 0,
+      "runs": 24,
+      "successful_runs": 24
+    },
+    "SVCA": {
+      "failed_runs": 0,
+      "runs": 24,
+      "successful_runs": 24
+    }
+  },
+  "source": {
+    "incomplete_reward_groups": 0,
+    "orphan_reward_record_groups": 0,
+    "records": 96,
+    "results_file": "C:\\Users\\yashy\\AppData\\Local\\Temp\\claude\\476fb9e0dc8742fc\\2fd81a30-6bb8-4444-9580-842769ec7155\\scratchpad\\sample_demo\\raw\\benchmark_results.csv",
+    "reward_file_present": false,
+    "reward_groups_fewer_than_robots": 0,
+    "reward_groups_more_than_robots": 0,
+    "reward_records_on_ineligible_runs": 0,
+    "runs_with_reward_records": 0,
+    "stored_gini_mismatching_records": 0,
+    "stored_gini_without_reward_records": 0
+  },
+  "tables": {
+    "allocation_cost": [
+      "C:\\Users\\yashy\\AppData\\Local\\Temp\\claude\\476fb9e0dc8742fc\\2fd81a30-6bb8-4444-9580-842769ec7155\\scratchpad\\sample_demo\\tables\\sample_demo_table_allocation_cost.csv",
+      "C:\\Users\\yashy\\AppData\\Local\\Temp\\claude\\476fb9e0dc8742fc\\2fd81a30-6bb8-4444-9580-842769ec7155\\scratchpad\\sample_demo\\tables\\sample_demo_table_allocation_cost.tex",
+      "C:\\Users\\yashy\\AppData\\Local\\Temp\\claude\\476fb9e0dc8742fc\\2fd81a30-6bb8-4444-9580-842769ec7155\\scratchpad\\sample_demo\\tables\\sample_demo_table_allocation_cost.md"
+    ],
+    "allocation_runtime": [
+      "C:\\Users\\yashy\\AppData\\Local\\Temp\\claude\\476fb9e0dc8742fc\\2fd81a30-6bb8-4444-9580-842769ec7155\\scratchpad\\sample_demo\\tables\\sample_demo_table_allocation_runtime.csv",
+      "C:\\Users\\yashy\\AppData\\Local\\Temp\\claude\\476fb9e0dc8742fc\\2fd81a30-6bb8-4444-9580-842769ec7155\\scratchpad\\sample_demo\\tables\\sample_demo_table_allocation_runtime.tex",
+      "C:\\Users\\yashy\\AppData\\Local\\Temp\\claude\\476fb9e0dc8742fc\\2fd81a30-6bb8-4444-9580-842769ec7155\\scratchpad\\sample_demo\\tables\\sample_demo_table_allocation_runtime.md"
+    ],
+    "energy_feasibility": [
+      "C:\\Users\\yashy\\AppData\\Local\\Temp\\claude\\476fb9e0dc8742fc\\2fd81a30-6bb8-4444-9580-842769ec7155\\scratchpad\\sample_demo\\tables\\sample_demo_table_energy_feasibility.csv",
+      "C:\\Users\\yashy\\AppData\\Local\\Temp\\claude\\476fb9e0dc8742fc\\2fd81a30-6bb8-4444-9580-842769ec7155\\scratchpad\\sample_demo\\tables\\sample_demo_table_energy_feasibility.tex",
+      "C:\\Users\\yashy\\AppData\\Local\\Temp\\claude\\476fb9e0dc8742fc\\2fd81a30-6bb8-4444-9580-842769ec7155\\scratchpad\\sample_demo\\tables\\sample_demo_table_energy_feasibility.md"
+    ],
+    "run_outcomes": [
+      "C:\\Users\\yashy\\AppData\\Local\\Temp\\claude\\476fb9e0dc8742fc\\2fd81a30-6bb8-4444-9580-842769ec7155\\scratchpad\\sample_demo\\tables\\sample_demo_table_run_outcomes.csv",
+      "C:\\Users\\yashy\\AppData\\Local\\Temp\\claude\\476fb9e0dc8742fc\\2fd81a30-6bb8-4444-9580-842769ec7155\\scratchpad\\sample_demo\\tables\\sample_demo_table_run_outcomes.tex",
+      "C:\\Users\\yashy\\AppData\\Local\\Temp\\claude\\476fb9e0dc8742fc\\2fd81a30-6bb8-4444-9580-842769ec7155\\scratchpad\\sample_demo\\tables\\sample_demo_table_run_outcomes.md"
+    ],
+    "summary": [
+      "C:\\Users\\yashy\\AppData\\Local\\Temp\\claude\\476fb9e0dc8742fc\\2fd81a30-6bb8-4444-9580-842769ec7155\\scratchpad\\sample_demo\\tables\\summary_sample_demo.csv"
+    ]
+  },
+  "unavailable_metrics": [
+    "gini",
+    "reward_runtime",
+    "total_runtime"
+  ],
+  "warnings": []
+}
