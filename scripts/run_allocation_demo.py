@@ -5,6 +5,7 @@ Solvers (names as printed):
     SVCA                paper-faithful SVCA (Martin et al. 2023, Algorithms 1-2), K chosen by V(C)
     GA                  paper-faithful GA clustering (fitness V(C))
     SVCA-ext, GA-cost   own extended / cost-driven variants (not in the paper)
+    MILP, SVCA+MILP     (only with --milp SECONDS) centralised exact MILP, and SVCA with an exact MILP per cluster
 
 
 Examples
@@ -26,6 +27,8 @@ from src.allocation import (  # noqa: E402
     GAClusteringAllocator,
     GAConfig,
     GreedyAllocator,
+    MILPAllocator,
+    MILPConfig,
     PaperGAAllocator,
     PaperGAConfig,
     PaperSVCAAllocator,
@@ -49,6 +52,8 @@ def main() -> None:
     ap.add_argument("--target-cluster-size", type=int, default=20, help="entities per sub-problem (sets K)")
     ap.add_argument("--q", type=int, default=None, help="Shapley permutations (default: from config)")
     ap.add_argument("--skip-ga", action="store_true", help="skip both GA variants (the slowest solvers)")
+    ap.add_argument("--milp", type=float, default=None, metavar="SECONDS",
+                    help="also run the exact MILP (and SVCA+MILP) with this time limit per solve")
     ap.add_argument("--paper-config", default=os.path.join("configs", "svca_paper.yaml"),
                     help="YAML with the svca_paper: section (alpha weights, theta, xi, ...)")
     ap.add_argument("--alpha1", type=float, default=None, help="override the paper's alpha1 (distance weight)")
@@ -93,6 +98,14 @@ def main() -> None:
         solvers.append(GAClusteringAllocator(GAConfig(target_cluster_size=args.target_cluster_size,
                                                       seed=svca_cfg.seed)))
 
+    if args.milp is not None:
+        import copy
+        exact_cfg = copy.deepcopy(paper_cfg)
+        exact_cfg.subsolver, exact_cfg.milp_time_limit = "milp", args.milp
+        svca_milp = PaperSVCAAllocator(exact_cfg)
+        svca_milp.name = "SVCA+MILP"
+        solvers += [svca_milp, MILPAllocator(MILPConfig(time_limit=args.milp))]
+
     env = Environment()
     env.load_scenario(scenario)
 
@@ -108,6 +121,9 @@ def main() -> None:
         print(f"{res.solver_name:<11}{res.total_cost:>12.2f}{res.runtime_seconds:>12.3f}{k!s:>4}{v:>10}"
               f"{str(res.metadata['valid']):>7}{ok:>11}")
         results.append(res)
+        if res.solver_name == "MILP":
+            print(f"            ^ MILP status: {res.metadata['milp_status']}"
+                  f" (gap {res.metadata['mip_gap']}), plan from {res.metadata['plan_source']}")
 
     svca = next(r for r in results if r.solver_name == "SVCA")
     m = svca.metadata
