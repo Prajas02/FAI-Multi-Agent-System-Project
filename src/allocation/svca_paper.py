@@ -34,10 +34,17 @@ from typing import Any, Dict, List, Optional, Sequence, Tuple
 
 from src.allocation.base import Allocator
 from src.allocation.evaluator import AllocationEvaluator, Routes
-from src.allocation.insertion import solve_subproblem
+from src.allocation.milp import solve_cluster
 from src.allocation.paper_model import PaperCoalitionModel, PaperParams
 from src.core.types import AllocationResult
 from src.simulation.generator import ScenarioData
+
+
+def _count(items):
+    out = {}
+    for x in items:
+        out[x] = out.get(x, 0) + 1
+    return out
 
 
 @dataclass
@@ -55,6 +62,9 @@ class PaperSVCAConfig:
     # sub-solver
     improve: bool = True
     local_search_passes: int = 20
+    subsolver: str = "heuristic"       # "heuristic" (greedy + local search) | "milp" (exact, like the paper)
+    milp_time_limit: float = 30.0       # seconds per cluster
+    milp_gap: float = 1e-4
     seed: Optional[int] = 42
 
     @classmethod
@@ -200,13 +210,18 @@ class PaperSVCAAllocator(Allocator):
 
         routes: Routes = {a: [] for a in ev.agent_ids}
         cluster_ids = []
+        sub_info = []
         for members in clusters:
             agents = sorted(model.agents[e].agent_id for e in members if e < model.R)
             tasks = sorted(model.tasks[e - model.R].task_id for e in members if e >= model.R)
             cluster_ids.append({"agents": agents, "tasks": tasks})
             if tasks:
-                routes.update(solve_subproblem(ev, agents, tasks, improve=cfg.improve,
-                                               max_passes=cfg.local_search_passes))
+                cl_routes, info_c = solve_cluster(
+                    ev, agents, tasks, subsolver=cfg.subsolver, improve=cfg.improve,
+                    local_search_passes=cfg.local_search_passes,
+                    milp_time_limit=cfg.milp_time_limit, milp_gap=cfg.milp_gap)
+                routes.update(cl_routes)
+                sub_info.append(info_c)
         t2 = time.perf_counter()
 
         values = info["values"]
@@ -220,6 +235,10 @@ class PaperSVCAAllocator(Allocator):
                 "V": values[info["best_index"]],
                 "num_clusters": len(clusters),
                 "clusters": cluster_ids,
+                "subsolver": cfg.subsolver,
+                "subsolver_status": _count([i["status"] for i in sub_info]),
+                "subsolver_max_gap": max((i["gap"] for i in sub_info if i["gap"] is not None), default=None),
+                "subsolver_fallbacks": sum(1 for i in sub_info if i["fallback"]),
                 "q_used": info["q"],
                 "q_initial": info["q_initial"],
                 "v_curve": [{"num_clusters": n, "V": v}
